@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whats_up/pages/register_number.dart';
+import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const RegisterNumber(),
+      home: const RegisterPhoneNumber(),
     );
   }
 }

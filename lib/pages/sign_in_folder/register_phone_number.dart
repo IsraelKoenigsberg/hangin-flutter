@@ -1,23 +1,22 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'dart:convert'; // For encoding data to JSON
 import 'package:http/http.dart' as http;
-import 'package:whats_up/pages/send_code.dart';
+import 'package:whats_up/constants/app_strings.dart';
+import 'package:whats_up/pages/sign_in_folder/authenticate_phone_number.dart';
 
-class RegisterNumber extends StatefulWidget {
-  const RegisterNumber({
+class RegisterPhoneNumber extends StatefulWidget {
+  const RegisterPhoneNumber({
     super.key,
   });
 
   @override
-  State<RegisterNumber> createState() => _TwoFactorCode();
+  State<RegisterPhoneNumber> createState() => _TwoFactorCode();
 }
 
-class _TwoFactorCode extends State<RegisterNumber> {
+class _TwoFactorCode extends State<RegisterPhoneNumber> {
+  TextEditingController phoneNumberController = TextEditingController();
+  bool invalidNumber = false;
   @override
   Widget build(BuildContext context) {
-    TextEditingController phoneNumberController = TextEditingController();
     // Get screen dimensions
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -42,7 +41,19 @@ class _TwoFactorCode extends State<RegisterNumber> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text("Please Enter Your Phone Number"),
+              if (invalidNumber) ...[
+                const Text(
+                  AppStrings.invalidNumberMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ],
+              const SizedBox(
+                height: 12,
+              ),
+              const Text(AppStrings.enterNumber),
+              const SizedBox(
+                height: 12,
+              ),
               TextField(
                 controller: phoneNumberController,
                 keyboardType: TextInputType.phone,
@@ -57,18 +68,20 @@ class _TwoFactorCode extends State<RegisterNumber> {
                 height: 16,
               ),
               ElevatedButton(
-                  onPressed: () {
-                    getCode(phoneNumberController);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SendCode(
-                                phoneNumber: phoneNumberController.text,
-                              )),
-                    );
+                  onPressed: () async {
+                    final navigator = Navigator.of(context);
+                    await getCode();
+                    if (!invalidNumber) {
+                      navigator.push(
+                        MaterialPageRoute(
+                            builder: (context) => AuthenticatePhoneNumber(
+                                  phoneNumber: phoneNumberController.text,
+                                )),
+                      );
+                    }
                   },
                   child: const Text(
-                    "Continue",
+                    AppStrings.continueString,
                   ))
             ],
           ),
@@ -77,16 +90,10 @@ class _TwoFactorCode extends State<RegisterNumber> {
     );
   }
 
-  void getCode(TextEditingController phoneNumberController) async {
+  Future<void> getCode() async {
     String number = phoneNumberController.text;
-    print("Number is:");
-    print(number);
-    await send2FARequest(number);
-
-// http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/create?number=
-  }
-
-  Future<void> send2FARequest(String number) async {
+    debugPrint("Number is:");
+    debugPrint(number);
     // Define the URL
     final String url =
         'http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/create?number=$number';
@@ -103,16 +110,25 @@ class _TwoFactorCode extends State<RegisterNumber> {
       // Check if the request was successful
       if (response.statusCode == 204) {
         // Successfully sent the request
-        print('2FA request sent successfully!');
+        debugPrint('2FA request sent successfully!');
+        setState(() {
+          invalidNumber = false;
+        });
       } else {
         // Request failed, handle the error
-        print(
+        setState(() {
+          invalidNumber = true;
+        });
+        debugPrint(
             'Failed to send 2FA request. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        debugPrint('Response body: ${response.body}');
       }
     } catch (e) {
       // Handle any exceptions that occur during the request
-      print('Error sending 2FA request: $e');
+      debugPrint('Error sending 2FA request: $e');
+      setState(() {
+        invalidNumber = true;
+      });
     }
   }
 }
