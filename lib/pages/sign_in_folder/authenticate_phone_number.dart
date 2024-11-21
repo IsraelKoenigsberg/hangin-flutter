@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:whats_up/constants/app_strings.dart';
 import 'package:whats_up/pages/home_page.dart';
+import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
+import 'package:whats_up/services/token_provider.dart';
 
 /// Sends the OTP back to Twilio Servers to check if the OTP received is
 /// correct.
@@ -76,6 +83,7 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
               const SizedBox(
                 height: 16,
               ),
+
               // Button to submit OTP and navigate to HomePage if successful
               ElevatedButton(
                   onPressed: () async {
@@ -83,10 +91,10 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
                     await sendReceivedCode(phoneNumber,
                         codeController.text); // Send OTP for validation
                     if (!invalidOTP) {
-                      // If OTP is valid, navigate to HomePage
+                      // If OTP is valid, navigate to Contact Screen
                       navigator.push(
                         MaterialPageRoute(
-                            builder: (context) => const HomePage()),
+                            builder: (context) => ContactSelectionScreen()),
                       );
                     }
                   },
@@ -100,6 +108,11 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
     );
   }
 
+  Future<bool> requestContactsPermission() async {
+    final status = await Permission.contacts.request();
+    return status.isGranted;
+  }
+
   // Function to send OTP for validation and handle response
   Future<void> sendReceivedCode(String number, String code) async {
     debugPrint("Code");
@@ -111,7 +124,7 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
 
     // Construct the URL for sending OTP with client credentials
     final String url =
-        'http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/oauth'
+        'https://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/oauth'
         '/token?client_id=$clientId&client_secret=$clientSecret'
         '&grant_type=password&number=$number&code=$code';
 
@@ -126,6 +139,13 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
 
       // Handle successful OTP verification
       if (response.statusCode == 200) {
+        // Extract access token from response
+        final accessToken = jsonDecode(response.body)['access_token'];
+        print("Access Token");
+        print(accessToken);
+        final tokenProvider =
+            Provider.of<TokenProvider>(context, listen: false);
+        tokenProvider.saveToken(accessToken);
         debugPrint("OTP Success!"); // Debugging: OTP verification success
         setState(() {
           invalidOTP = false; // Set invalidOTP flag to false if OTP is valid
@@ -149,3 +169,6 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
     }
   }
 }
+// 'http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/friends?access_token=
+//Save access token on device. abd save refresh token (for later). send friends (contacts to the url)
+// 
