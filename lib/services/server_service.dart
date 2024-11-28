@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:whats_up/services/token_provider.dart';
 
 class ServerService {
   Future<void> sendContactsToServer(

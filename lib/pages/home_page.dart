@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/web_socket_test.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,8 +27,20 @@ class _HomePageState extends State<HomePage> {
             bottom: screenHeight * .07,
             left: screenWidth * .05,
             right: screenWidth * .05),
-        child: const Center(
-          child: Text('Welcome to WhatsUp!'), // Placeholder content
+        child: Column(
+          children: [
+            const Center(
+              child: Text('Welcome to WhatsUp!'), // Placeholder content
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const WebSocketExample()));
+                },
+                child: Text("Test WebSocket"))
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
