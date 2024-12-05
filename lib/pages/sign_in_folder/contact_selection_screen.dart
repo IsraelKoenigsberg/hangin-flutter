@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/home_page.dart';
 import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
@@ -54,7 +55,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Select Contacts"),
+        title: const Text("Select Contacts"),
         actions: [
           Row(
             children: [
@@ -64,17 +65,23 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
                   _onSelectAllChanged(value ?? false);
                 },
               ),
-              Text("Select All", style: TextStyle(color: Colors.blue)),
+              const Text("Select All", style: TextStyle(color: Colors.blue)),
             ],
           ),
           TextButton(
-            onPressed: _sendSelectedContactsToServer,
-            child: Text("Upload", style: TextStyle(color: Colors.blue)),
+            onPressed: () {
+              sendSelectedContactsToServer();
+              final navigator = Navigator.of(context); // Store navigator
+              navigator.push(
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
+            },
+            child: const Text("Upload", style: TextStyle(color: Colors.blue)),
           ),
         ],
       ),
       body: contacts.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: contacts.length,
               itemBuilder: (context, index) {
@@ -101,7 +108,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
   }
 
   // Send selected contacts to the server
-  Future<void> _sendSelectedContactsToServer() async {
+  Future<void> sendSelectedContactsToServer() async {
     List<Map<String, dynamic>> selectedContactsData = selectedContacts
         .map((contact) {
           // Split the display name into first and last name
@@ -134,7 +141,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
       print("No contacts selected.");
       return;
     }
-
+    print(selectedContactsData.toString());
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final accessToken = tokenProvider.token;
 

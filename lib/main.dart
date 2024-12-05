@@ -15,22 +15,66 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Future<bool> _initialCheck;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialCheck = _checkTokenStatus();
+  }
+
+  /// Check token validity and expiration status
+  Future<bool> _checkTokenStatus() async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    await tokenProvider.loadToken();
+
+    if (tokenProvider.token == null) {
+      return false;
+    }
+
+    bool isExpired = await tokenProvider.isTokenExpired();
+    if (isExpired) {
+      try {
+        await tokenProvider.refreshAccessToken();
+      } catch (e) {
+        print('Error refreshing token: $e');
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tokenProvider = Provider.of<TokenProvider>(context);
-
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: tokenProvider.token != null
-          ? const HomePage()
-          : const RegisterPhoneNumber(),
+      home: FutureBuilder<bool>(
+        future: _initialCheck,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child:
+                    CircularProgressIndicator()); // Show a loader while checking
+          } else if (snapshot.hasError) {
+            return const RegisterPhoneNumber(); // Handle error case
+          } else if (snapshot.data == true) {
+            return const HomePage(); // Token valid and not expired
+          } else {
+            return const RegisterPhoneNumber(); // Token missing or expired
+          }
+        },
+      ),
     );
   }
 }

@@ -137,12 +137,22 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
       // Handle successful OTP verification
       if (response.statusCode == 200) {
         // Extract access token from response
-        final accessToken = jsonDecode(response.body)['access_token'];
+        final data = jsonDecode(response.body);
+        final accessToken = data['access_token'];
+        final expiresIn = data['expires_in'];
+        final createdAt = data['created_at'];
+        final refreshToken = data['refresh_token'];
+        final expirationTime = createdAt + expiresIn;
+        print("Created At");
+        print(createdAt);
+        print("Expiration In");
+        print(expiresIn);
         print("Access Token");
         print(accessToken);
         final tokenProvider =
             Provider.of<TokenProvider>(context, listen: false);
-        tokenProvider.saveToken(accessToken);
+        tokenProvider.saveToken(
+            accessToken, expirationTime, refreshToken, clientId, clientSecret);
         debugPrint("OTP Success!"); // Debugging: OTP verification success
         setState(() {
           invalidOTP = false; // Set invalidOTP flag to false if OTP is valid

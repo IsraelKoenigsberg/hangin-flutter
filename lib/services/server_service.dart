@@ -13,11 +13,12 @@ class ServerService {
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
         },
         body: contactsJson,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         print("Contacts uploaded successfully.");
       } else {
         print("Failed to upload contacts. Status code: ${response.statusCode}");

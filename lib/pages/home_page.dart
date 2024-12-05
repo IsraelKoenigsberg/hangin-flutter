@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/pages/web_socket_test.dart';
 import 'package:whats_up/services/token_provider.dart';
 
@@ -39,13 +40,18 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(
                           builder: (context) => const WebSocketExample()));
                 },
-                child: Text("Test WebSocket"))
+                child: const Text("Test WebSocket"))
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           tokenProvider.deleteToken(); // Deletes the token and updates UI
+          final navigator = Navigator.of(context); // Store navigator
+          navigator.push(
+            MaterialPageRoute(
+                builder: (context) => const RegisterPhoneNumber()),
+          );
         },
         child: const Icon(Icons.logout),
       ),
