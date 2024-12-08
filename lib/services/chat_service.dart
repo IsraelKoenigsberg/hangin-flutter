@@ -37,15 +37,18 @@ class ChatService {
     print("Handling incoming message: $message");
 
     try {
+      print(1122);
       final decodedMessage = jsonDecode(message);
       print("Decoded message: $decodedMessage");
 
       final identifier = decodedMessage['identifier'] != null
           ? jsonDecode(decodedMessage['identifier'])
           : null;
-
+      print(identifier);
       if (identifier != null) {
+        print(1123);
         if (identifier['channel'] == 'ChatsChannel') {
+          print("7777");
           final chatMessage = decodedMessage['message'];
           if (chatMessage != null && chatMessage['chats'] != null) {
             // Update ongoing chats list
@@ -56,6 +59,7 @@ class ChatService {
           final chatId = identifier['id'].toString();
           final chatMessage = decodedMessage['message'];
 
+          /// HERE
           // Update the messages for a specific chat
           if (chatMessage != null && chatMessage['messages'] != null) {
             // Directly navigate to chat details if needed (you can skip this if you just need the message update)

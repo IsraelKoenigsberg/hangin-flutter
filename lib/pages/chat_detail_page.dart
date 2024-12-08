@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
 
-class ChatDetailPage extends StatelessWidget {
+class ChatDetailPage extends StatefulWidget {
   final String chatId;
   final List<Map<String, dynamic>> chatMessages;
 
   ChatDetailPage({required this.chatId, required this.chatMessages});
 
   @override
+  _ChatDetailPageState createState() => _ChatDetailPageState();
+}
+
+class _ChatDetailPageState extends State<ChatDetailPage> {
+  late List<Map<String, dynamic>> _chatMessages;
+
+  @override
+  void initState() {
+    super.initState();
+    _chatMessages =
+        widget.chatMessages; // Initialize the messages with the widget data
+  }
+
+  // This method updates the messages and calls setState to refresh the UI
+  void _updateMessages(List<Map<String, dynamic>> newMessages) {
+    setState(() {
+      _chatMessages = newMessages;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat #$chatId"),
+        title: Text("Chat #${widget.chatId}"),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -18,12 +39,12 @@ class ChatDetailPage extends StatelessWidget {
           },
         ),
       ),
-      body: chatMessages.isEmpty
+      body: _chatMessages.isEmpty
           ? Center(child: Text("No messages yet."))
           : ListView.builder(
-              itemCount: chatMessages.length,
+              itemCount: _chatMessages.length,
               itemBuilder: (context, index) {
-                final message = chatMessages[index];
+                final message = _chatMessages[index];
                 return ListTile(
                   title:
                       Text("${message['first_name']} ${message['last_name']}"),
