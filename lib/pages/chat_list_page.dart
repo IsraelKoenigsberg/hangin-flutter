@@ -71,26 +71,47 @@ class _ChatListPageState extends State<ChatListPage> {
   }
 
   void handleIncomingMessage(String message) {
-    final decodedMessage = jsonDecode(message);
-    final identifier = decodedMessage['identifier'] != null
-        ? jsonDecode(decodedMessage['identifier'])
-        : null;
+    try {
+      final decodedMessage = jsonDecode(message);
+      print("Decoded Message: $decodedMessage");
 
-    if (identifier != null && identifier['channel'] == 'ChatsChannel') {
-      if (decodedMessage['message'] != null &&
-          decodedMessage['message']['chats'] != null) {
-        setState(() {
-          ongoingChats = List<Map<String, dynamic>>.from(
-              decodedMessage['message']['chats']);
-        });
-        print("Ongoing Chats: $ongoingChats");
+      // Check and parse the identifier
+      final identifier = decodedMessage['identifier'] != null
+          ? jsonDecode(decodedMessage['identifier'])
+          : null;
+      print("Parsed Identifier: $identifier");
+
+      if (identifier != null && identifier['channel'] == 'ChatsChannel') {
+        // Ongoing chats
+        final chatMessage = decodedMessage['message'];
+        if (chatMessage != null && chatMessage['chats'] != null) {
+          setState(() {
+            ongoingChats =
+                List<Map<String, dynamic>>.from(chatMessage['chats']);
+          });
+          print("Ongoing Chats Updated: $ongoingChats");
+        }
+      } else if (identifier != null && identifier['channel'] == 'ChatChannel') {
+        // Specific chat
+        final chatMessage = decodedMessage['message'];
+        if (chatMessage != null) {
+          if (chatMessage['message'] != null) {
+            final chatDetailMessage = chatMessage['message'];
+            print("New Message for ChatChannel: $chatDetailMessage");
+
+            // ** Update ChatDetailPage's state with the new message **
+            ChatDetailPage.updateMessages(chatDetailMessage);
+          } else {
+            print("ChatChannel message format unrecognized: $chatMessage");
+          }
+        } else {
+          print("No message content in ChatChannel.");
+        }
+      } else {
+        print("Unhandled message: $decodedMessage");
       }
-    } else if (identifier != null && identifier['channel'] == 'ChatChannel') {
-      if (decodedMessage['message']['messages'] != null) {
-        print("Chat History: ${decodedMessage['message']['messages']}");
-      } else if (decodedMessage['message']['message'] != null) {
-        print("New Message: ${decodedMessage['message']['message']}");
-      }
+    } catch (e) {
+      print("Error in handleIncomingMessage: $e");
     }
   }
 
@@ -131,17 +152,62 @@ class _ChatListPageState extends State<ChatListPage> {
   }
 }
 
-class ChatDetailPage extends StatelessWidget {
+class ChatDetailPage extends StatefulWidget {
   final int chatId;
 
   ChatDetailPage({required this.chatId});
 
+  // ** Static method to update messages from WebSocket **
+  static void updateMessages(Map<String, dynamic> message) {
+    _ChatDetailPageState.addMessage(message);
+  }
+
+  @override
+  _ChatDetailPageState createState() => _ChatDetailPageState();
+}
+
+class _ChatDetailPageState extends State<ChatDetailPage> {
+  List<Map<String, dynamic>> messages = [];
+
+  // ** Add new message to the state **
+  static void addMessage(Map<String, dynamic> message) {
+    _currentInstance?.addMessageInternal(message);
+  }
+
+  static _ChatDetailPageState? _currentInstance;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentInstance = this;
+  }
+
+  @override
+  void dispose() {
+    _currentInstance = null;
+    super.dispose();
+  }
+
+  void addMessageInternal(Map<String, dynamic> message) {
+    setState(() {
+      messages.add(message);
+    });
+    print("Message added: $message");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Chat #$chatId")),
-      body: Center(
-        child: Text("Chat messages for Chat #$chatId will appear here."),
+      appBar: AppBar(title: Text("Chat #${widget.chatId}")),
+      body: ListView.builder(
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final message = messages[index];
+          return ListTile(
+            title: Text("${message['first_name']} ${message['last_name']}"),
+            subtitle: Text(message['body']),
+          );
+        },
       ),
     );
   }
