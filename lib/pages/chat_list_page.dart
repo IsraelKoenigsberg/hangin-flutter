@@ -5,6 +5,7 @@ import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 import 'chat_detail_page.dart';
 
+// ChatListPage to show ongoing chats
 class ChatListPage extends StatefulWidget {
   @override
   _ChatListPageState createState() => _ChatListPageState();
@@ -34,6 +35,8 @@ class _ChatListPageState extends State<ChatListPage> {
     print("Initializing WebSocket with token: $accessToken");
     channel = ChatService.connectWebSocket(accessToken);
     ChatService.subscribeToChats(channel);
+
+    // Listen to incoming messages for both ChatsChannel and ChatChannel
     channel.stream.listen(
       (message) {
         print("Received WebSocket message: $message");
@@ -41,7 +44,8 @@ class _ChatListPageState extends State<ChatListPage> {
           message,
           context,
           (chats) => setState(() {
-            ongoingChats = chats;
+            print("Updating ongoing chats...");
+            ongoingChats = chats; // Update ongoing chats here
           }),
         );
       },
@@ -55,8 +59,8 @@ class _ChatListPageState extends State<ChatListPage> {
     );
   }
 
-  void getChatDetails(String chatId) {
-    print("Getting chat details for chat ID: $chatId");
+  void navigateToChatDetails(String chatId) {
+    print("Navigating to chat details for chat ID: $chatId");
     ChatService.subscribeToSpecificChat(channel, chatId);
   }
 
@@ -79,7 +83,7 @@ class _ChatListPageState extends State<ChatListPage> {
                               .join(", ") ??
                           'No users',
                     ),
-                    onTap: () => getChatDetails(chat['id'].toString()),
+                    onTap: () => navigateToChatDetails(chat['id'].toString()),
                   ),
                 );
               },
