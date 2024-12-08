@@ -117,7 +117,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
           String firstName = nameParts.isNotEmpty ? nameParts.first : "";
           String lastName =
               nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "";
-
+          print("First Name: $firstName, Last Name: $lastName");
           // Collect the phone numbers
           List<String> phones = contact.phones
                   ?.map((phone) => phone.value ?? "")
