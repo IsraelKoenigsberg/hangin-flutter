@@ -1,9 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
+import 'chat_detail_page.dart';
 
 class ChatListPage extends StatefulWidget {
   @override
@@ -13,116 +13,51 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   late WebSocketChannel channel;
   List<Map<String, dynamic>> ongoingChats = [];
-  String? selectedChatId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     String accessToken = tokenProvider.token!;
+    print("Initializing WebSocket connection...");
     initializeWebSocket(accessToken);
-    print("Access Token");
-    print(accessToken);
   }
 
   @override
   void dispose() {
+    print("Closing WebSocket channel...");
     channel.sink.close();
     super.dispose();
   }
 
   void initializeWebSocket(String accessToken) {
-    String url =
-        "wss://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/cable?access_token=$accessToken";
-    channel = WebSocketChannel.connect(
-      Uri.parse(url),
-    );
-
-    // Subscribe to the ongoing chats
-    subscribeToChats();
-
-    // Listen for incoming messages
+    print("Initializing WebSocket with token: $accessToken");
+    channel = ChatService.connectWebSocket(accessToken);
+    ChatService.subscribeToChats(channel);
     channel.stream.listen(
       (message) {
-        print("Received: $message");
-        handleIncomingMessage(message);
+        print("Received WebSocket message: $message");
+        ChatService.handleIncomingMessage(
+          message,
+          context,
+          (chats) => setState(() {
+            ongoingChats = chats;
+          }),
+        );
       },
-      onError: (error) => print("WebSocket Error: $error"),
-      onDone: () => print("WebSocket closed"),
+      onError: (error) {
+        print("WebSocket Error: $error");
+      },
+      onDone: () {
+        print("WebSocket closed. Attempting to reconnect...");
+        initializeWebSocket(accessToken); // Automatically reconnect
+      },
     );
   }
 
-  void subscribeToChats() {
-    final subscriptionMessage = jsonEncode({
-      "command": "subscribe",
-      "identifier": "{\"channel\":\"ChatsChannel\"}"
-    });
-    channel.sink.add(subscriptionMessage);
-    print("Subscribed to ChatsChannel: $subscriptionMessage");
-  }
-
-  void subscribeToSpecificChat(int chatId) {
-    final chatSubscriptionMessage = jsonEncode({
-      "command": "subscribe",
-      "identifier": "{\"channel\":\"ChatChannel\", \"id\":\"$chatId\"}"
-    });
-    channel.sink.add(chatSubscriptionMessage);
-    print("Subscribed to ChatChannel $chatId: $chatSubscriptionMessage");
-  }
-
-  void handleIncomingMessage(String message) {
-    try {
-      final decodedMessage = jsonDecode(message);
-      print("Decoded Message: $decodedMessage");
-
-      // Check and parse the identifier
-      final identifier = decodedMessage['identifier'] != null
-          ? jsonDecode(decodedMessage['identifier'])
-          : null;
-      print("Parsed Identifier: $identifier");
-
-      if (identifier != null && identifier['channel'] == 'ChatsChannel') {
-        // Ongoing chats
-        final chatMessage = decodedMessage['message'];
-        if (chatMessage != null && chatMessage['chats'] != null) {
-          setState(() {
-            ongoingChats =
-                List<Map<String, dynamic>>.from(chatMessage['chats']);
-          });
-          print("Ongoing Chats Updated: $ongoingChats");
-        }
-      } else if (identifier != null && identifier['channel'] == 'ChatChannel') {
-        // Specific chat
-        final chatMessage = decodedMessage['message'];
-        if (chatMessage != null) {
-          if (chatMessage['message'] != null) {
-            final chatDetailMessage = chatMessage['message'];
-            print("New Message for ChatChannel: $chatDetailMessage");
-
-            // ** Update ChatDetailPage's state with the new message **
-            ChatDetailPage.updateMessages(chatDetailMessage);
-          } else {
-            print("ChatChannel message format unrecognized: $chatMessage");
-          }
-        } else {
-          print("No message content in ChatChannel.");
-        }
-      } else {
-        print("Unhandled message: $decodedMessage");
-      }
-    } catch (e) {
-      print("Error in handleIncomingMessage: $e");
-    }
-  }
-
-  void navigateToChatDetails(int chatId) {
-    subscribeToSpecificChat(chatId);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChatDetailPage(chatId: chatId),
-      ),
-    );
+  void getChatDetails(String chatId) {
+    print("Getting chat details for chat ID: $chatId");
+    ChatService.subscribeToSpecificChat(channel, chatId);
   }
 
   @override
@@ -137,78 +72,18 @@ class _ChatListPageState extends State<ChatListPage> {
                 final chat = ongoingChats[index];
                 return Card(
                   child: ListTile(
-                    title: Text(chat['name']),
+                    title: Text(chat['name'] ?? 'Unnamed Chat'),
                     subtitle: Text(
                       chat['users']
-                          .map((u) => u['first_name'] ?? 'Unknown')
-                          .join(", "),
+                              ?.map((u) => u['first_name'] ?? 'Unknown')
+                              .join(", ") ??
+                          'No users',
                     ),
-                    onTap: () => navigateToChatDetails(chat['id']),
+                    onTap: () => getChatDetails(chat['id'].toString()),
                   ),
                 );
               },
             ),
-    );
-  }
-}
-
-class ChatDetailPage extends StatefulWidget {
-  final int chatId;
-
-  ChatDetailPage({required this.chatId});
-
-  // ** Static method to update messages from WebSocket **
-  static void updateMessages(Map<String, dynamic> message) {
-    _ChatDetailPageState.addMessage(message);
-  }
-
-  @override
-  _ChatDetailPageState createState() => _ChatDetailPageState();
-}
-
-class _ChatDetailPageState extends State<ChatDetailPage> {
-  List<Map<String, dynamic>> messages = [];
-
-  // ** Add new message to the state **
-  static void addMessage(Map<String, dynamic> message) {
-    _currentInstance?.addMessageInternal(message);
-  }
-
-  static _ChatDetailPageState? _currentInstance;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentInstance = this;
-  }
-
-  @override
-  void dispose() {
-    _currentInstance = null;
-    super.dispose();
-  }
-
-  void addMessageInternal(Map<String, dynamic> message) {
-    setState(() {
-      messages.add(message);
-    });
-    print("Message added: $message");
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Chat #${widget.chatId}")),
-      body: ListView.builder(
-        itemCount: messages.length,
-        itemBuilder: (context, index) {
-          final message = messages[index];
-          return ListTile(
-            title: Text("${message['first_name']} ${message['last_name']}"),
-            subtitle: Text(message['body']),
-          );
-        },
-      ),
     );
   }
 }
