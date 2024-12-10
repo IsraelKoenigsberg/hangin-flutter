@@ -1,11 +1,17 @@
 import 'dart:convert';
-import 'package:provider/provider.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/pages/chat_detail_page.dart';
-import 'package:whats_up/services/token_provider.dart';
 
 class ChatService {
+  static final Map<String, List<Map<String, dynamic>>> chatMessagesMap = {};
+  static void appendMessage(String chatId, Map<String, dynamic> newMessage) {
+    if (!chatMessagesMap.containsKey(chatId)) {
+      chatMessagesMap[chatId] = [];
+    }
+    chatMessagesMap[chatId]!.add(newMessage);
+  }
+
   static WebSocketChannel connectWebSocket(String accessToken) {
     String url =
         "wss://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/cable?access_token=$accessToken";
@@ -37,18 +43,21 @@ class ChatService {
     print("Handling incoming message: $message");
 
     try {
-      print(1122);
       final decodedMessage = jsonDecode(message);
-      print("Decoded message: $decodedMessage");
 
+      // Check if identifier exists and decode it
       final identifier = decodedMessage['identifier'] != null
           ? jsonDecode(decodedMessage['identifier'])
           : null;
-      print(identifier);
+
+      // Handle subscription confirmation messages
+      if (decodedMessage['type'] == 'confirm_subscription') {
+        print("Subscription confirmed for: $identifier");
+        return; // Nothing to do for subscription confirmations
+      }
+
       if (identifier != null) {
-        print(1123);
         if (identifier['channel'] == 'ChatsChannel') {
-          print("7777");
           final chatMessage = decodedMessage['message'];
           if (chatMessage != null && chatMessage['chats'] != null) {
             // Update ongoing chats list
@@ -59,10 +68,11 @@ class ChatService {
           final chatId = identifier['id'].toString();
           final chatMessage = decodedMessage['message'];
 
-          /// HERE
+          print("First Else If");
+
           // Update the messages for a specific chat
           if (chatMessage != null && chatMessage['messages'] != null) {
-            // Directly navigate to chat details if needed (you can skip this if you just need the message update)
+            print("if of first else if");
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -73,6 +83,23 @@ class ChatService {
                 ),
               ),
             );
+          }
+          // Update the messages for a specific chat
+          else if (chatMessage != null && chatMessage['message'] != null) {
+            print("second Else If");
+            print(chatMessage['message']);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailPage(
+                  chatId: chatId,
+                  chatMessages:
+                      List<Map<String, dynamic>>.from(chatMessage['message']),
+                ),
+              ),
+            );
+          } else {
+            print("No messages found in chatMessage for chatId: $chatId");
           }
         }
       }

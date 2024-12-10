@@ -5,7 +5,6 @@ import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 import 'chat_detail_page.dart';
 
-// ChatListPage to show ongoing chats
 class ChatListPage extends StatefulWidget {
   @override
   _ChatListPageState createState() => _ChatListPageState();
