@@ -38,29 +38,28 @@ class ChatService {
     channel.sink.add(chatSubscriptionMessage);
   }
 
-  static void handleIncomingMessage(String message, BuildContext context,
-      Function(List<Map<String, dynamic>>) updateOngoingChats) {
+  static void handleIncomingMessage(
+    String message,
+    BuildContext context,
+    Function(List<Map<String, dynamic>>) updateOngoingChats,
+  ) {
     print("Handling incoming message: $message");
 
     try {
       final decodedMessage = jsonDecode(message);
-
-      // Check if identifier exists and decode it
       final identifier = decodedMessage['identifier'] != null
           ? jsonDecode(decodedMessage['identifier'])
           : null;
 
-      // Handle subscription confirmation messages
       if (decodedMessage['type'] == 'confirm_subscription') {
         print("Subscription confirmed for: $identifier");
-        return; // Nothing to do for subscription confirmations
+        return;
       }
 
       if (identifier != null) {
         if (identifier['channel'] == 'ChatsChannel') {
           final chatMessage = decodedMessage['message'];
           if (chatMessage != null && chatMessage['chats'] != null) {
-            // Update ongoing chats list
             updateOngoingChats(
                 List<Map<String, dynamic>>.from(chatMessage['chats']));
           }
@@ -68,36 +67,32 @@ class ChatService {
           final chatId = identifier['id'].toString();
           final chatMessage = decodedMessage['message'];
 
-          print("First Else If");
-
-          // Update the messages for a specific chat
           if (chatMessage != null && chatMessage['messages'] != null) {
-            print("if of first else if");
+            // Save the chat history
+            ChatService.chatMessagesMap[chatId] =
+                List<Map<String, dynamic>>.from(chatMessage['messages']);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ChatDetailPage(
                   chatId: chatId,
-                  chatMessages:
-                      List<Map<String, dynamic>>.from(chatMessage['messages']),
+                  chatMessages: ChatService.chatMessagesMap[chatId]!,
                 ),
               ),
             );
-          }
-          // Update the messages for a specific chat
-          else if (chatMessage != null && chatMessage['message'] != null) {
-            print("second Else If");
-            print(chatMessage['message']);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChatDetailPage(
-                  chatId: chatId,
-                  chatMessages:
-                      List<Map<String, dynamic>>.from(chatMessage['message']),
-                ),
+          } else if (chatMessage != null && chatMessage['message'] != null) {
+            // Append new message to the list
+            ChatService.appendMessage(
+                chatId, Map<String, dynamic>.from(chatMessage['message']));
+
+            // Find the ChatDetailPage if it's already open and update the UI
+            final navigatorState = Navigator.of(context);
+            navigatorState.pushReplacement(MaterialPageRoute(
+              builder: (context) => ChatDetailPage(
+                chatId: chatId,
+                chatMessages: ChatService.chatMessagesMap[chatId]!,
               ),
-            );
+            ));
           } else {
             print("No messages found in chatMessage for chatId: $chatId");
           }

@@ -16,16 +16,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   void initState() {
     super.initState();
-    print("In ChatDetailPage initState");
-    _chatMessages =
-        widget.chatMessages; // Initialize the messages with the widget data
-  }
-
-  // This method updates the messages and calls setState to refresh the UI
-  void _updateMessages(List<Map<String, dynamic>> newMessages) {
-    setState(() {
-      _chatMessages = newMessages;
-    });
+    _chatMessages = widget.chatMessages;
   }
 
   @override
