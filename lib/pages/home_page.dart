@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/chat_list_page.dart';
 import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/pages/web_socket_test.dart';
 import 'package:whats_up/services/token_provider.dart';
@@ -35,10 +36,8 @@ class _HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const WebSocketExample()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ChatListPage()));
                 },
                 child: const Text("Test WebSocket"))
           ],
