@@ -66,7 +66,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   void dispose() {
-    _channel.sink.close();
+    //_channel.sink.close();
     _messageController.dispose();
     super.dispose();
   }
