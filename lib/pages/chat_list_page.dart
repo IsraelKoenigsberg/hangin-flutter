@@ -23,13 +23,6 @@ class _ChatListPageState extends State<ChatListPage> {
     connectToWebSocket(accessToken);
   }
 
-  @override
-  void dispose() {
-    print("Closing WebSocket channel...");
-    // channel.sink.close();
-    super.dispose();
-  }
-
   void connectToWebSocket(String accessToken) {
     print(1111);
     print("Connecting to WebSocket with token: $accessToken");
