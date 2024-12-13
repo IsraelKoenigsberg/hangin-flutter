@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
+import 'package:whats_up/services/web-socket-manager.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String chatId;
@@ -30,8 +31,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     String accessToken = tokenProvider.token!;
     print("Access token: ");
     print(accessToken);
-    _channel =
-        ChatService.connectWebSocket(accessToken); // Replace with actual token
+    _channel = WebSocketManager().channel;
+    print("Channel");
+    print(_channel);
+    // _channel
+    //     ChatService.connectWebSocket(accessToken); // Replace with actual token
     ChatService.subscribeToSpecificChat(_channel, widget.chatId);
   }
 
@@ -47,28 +51,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     });
 
     if (messageText.isNotEmpty) {
-      final sendMessage = jsonEncode({
-        "command": "message",
-        "identifier": jsonEncode({
-          "channel": "ChatChannel",
-          "id": widget.chatId,
-        }),
-        "data": jsonEncode({
-          "action": "speak",
-          "body": messageText,
-          "kind": "text",
-          "status": "sent",
-        }),
-      });
-
       print("Attempting to send message: $sendM");
+      print("Channel: ");
+      print(_channel);
       try {
         _channel.sink.add(sendM);
         print("Message sent successfully");
         _messageController.clear();
       } catch (e) {
         print("Error sending message: $e");
-        // You might want to show an error message to the user here
       }
     }
   }
