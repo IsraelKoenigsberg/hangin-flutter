@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
-import 'package:whats_up/services/web-socket-manager.dart';
-import 'chat_detail_page.dart';
+import 'package:whats_up/services/web_socket_manager.dart';
 
 class ChatListPage extends StatefulWidget {
   @override
@@ -67,9 +66,9 @@ class _ChatListPageState extends State<ChatListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Ongoing Chats")),
+      appBar: AppBar(title: const Text("Ongoing Chats")),
       body: ongoingChats.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: ongoingChats.length,
               itemBuilder: (context, index) {

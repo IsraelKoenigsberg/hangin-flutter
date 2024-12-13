@@ -5,15 +5,17 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
-import 'package:whats_up/services/web-socket-manager.dart';
+import 'package:whats_up/services/web_socket_manager.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String chatId;
   final List<Map<String, dynamic>> chatMessages;
 
-  ChatDetailPage({required this.chatId, required this.chatMessages});
+  const ChatDetailPage(
+      {super.key, required this.chatId, required this.chatMessages});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatDetailPageState createState() => _ChatDetailPageState();
 }
 
@@ -26,7 +28,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void initState() {
     super.initState();
     _chatMessages = widget.chatMessages;
-    // Assuming you already have access to the WebSocketChannel
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     String accessToken = tokenProvider.token!;
     print("Access token: ");
@@ -34,8 +35,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     _channel = WebSocketManager().channel;
     print("Channel");
     print(_channel);
-    // _channel
-    //     ChatService.connectWebSocket(accessToken); // Replace with actual token
     ChatService.subscribeToSpecificChat(_channel, widget.chatId);
   }
 
@@ -66,7 +65,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   void dispose() {
-    //_channel.sink.close();
     _messageController.dispose();
     super.dispose();
   }
@@ -77,7 +75,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       appBar: AppBar(
         title: Text("Chat #${widget.chatId}"),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -87,7 +85,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         children: [
           Expanded(
             child: _chatMessages.isEmpty
-                ? Center(child: Text("No messages yet."))
+                ? const Center(child: Text("No messages yet."))
                 : ListView.builder(
                     itemCount: _chatMessages.length,
                     itemBuilder: (context, index) {
@@ -107,14 +105,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Type your message...",
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),
               ],
