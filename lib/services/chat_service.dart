@@ -102,4 +102,26 @@ class ChatService {
       print("Error in handleIncomingMessage: $e");
     }
   }
+
+  static void sendMessge(
+      final messageText, final chatId, WebSocketChannel channel) {
+    final sendM = jsonEncode({
+      "command": "message",
+      "identifier": "{\"channel\":\"ChatChannel\", \"id\":\"$chatId\"}",
+      "data":
+          "{\"action\":\"speak\",\"body\":\"$messageText\", \"kind\":\"text\", \"status\":\"sent\"}"
+    });
+
+    if (messageText.isNotEmpty) {
+      print("Attempting to send message: $sendM");
+      print("Channel: ");
+      print(channel);
+      try {
+        channel.sink.add(sendM);
+        print("Message sent successfully");
+      } catch (e) {
+        print("Error sending message: $e");
+      }
+    }
+  }
 }

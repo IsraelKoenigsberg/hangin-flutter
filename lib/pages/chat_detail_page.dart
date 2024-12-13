@@ -42,25 +42,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     final messageText = _messageController.text.trim();
     print("message text: $messageText");
     final chatId = widget.chatId;
-    final sendM = jsonEncode({
-      "command": "message",
-      "identifier": "{\"channel\":\"ChatChannel\", \"id\":\"$chatId\"}",
-      "data":
-          "{\"action\":\"speak\",\"body\":\"$messageText\", \"kind\":\"text\", \"status\":\"sent\"}"
-    });
-
-    if (messageText.isNotEmpty) {
-      print("Attempting to send message: $sendM");
-      print("Channel: ");
-      print(_channel);
-      try {
-        _channel.sink.add(sendM);
-        print("Message sent successfully");
-        _messageController.clear();
-      } catch (e) {
-        print("Error sending message: $e");
-      }
-    }
+    ChatService.sendMessge(messageText, chatId, _channel);
+    _messageController.clear();
   }
 
   @override
