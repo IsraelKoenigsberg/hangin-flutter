@@ -13,40 +13,51 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   late WebSocketChannel channel;
   List<Map<String, dynamic>> ongoingChats = [];
+  bool _isMounted = false; // Track if the widget is still mounted
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    String accessToken = tokenProvider.token!;
-    print("Initializing WebSocket connection...");
-    connectToWebSocket(accessToken);
+    if (!_isMounted) {
+      _isMounted = true;
+      final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+      String accessToken = tokenProvider.token!;
+      print("Initializing WebSocket connection...");
+      connectToWebSocket(accessToken);
+    }
   }
 
   void connectToWebSocket(String accessToken) {
-    print(1111);
     print("Connecting to WebSocket with token: $accessToken");
     channel = WebSocketManager().connect(accessToken);
     ChatService.subscribeToChats(channel);
-    // Listen to incoming messages for both ChatsChannel and ChatChannel
+
     channel.stream.listen(
       (message) {
-        print("Received WebSocket message: $message");
-        ChatService.handleIncomingMessage(
-          message,
-          context,
-          (chats) => setState(() {
-            print("Updating ongoing chats...");
-            ongoingChats = chats; // Update ongoing chats here
-          }),
-        );
+        if (mounted) {
+          print("Received WebSocket message: $message");
+          ChatService.handleIncomingMessage(
+            message,
+            context,
+            (chats) {
+              if (mounted) {
+                setState(() {
+                  print("Updating ongoing chats...");
+                  ongoingChats = chats; // Update ongoing chats here
+                });
+              }
+            },
+          );
+        }
       },
       onError: (error) {
         print("WebSocket Error: $error");
       },
       onDone: () {
-        print("WebSocket closed. Attempting to reconnect...");
-        connectToWebSocket(accessToken); // Automatically reconnect
+        if (mounted) {
+          print("WebSocket closed. Attempting to reconnect...");
+          connectToWebSocket(accessToken); // Automatically reconnect
+        }
       },
     );
   }
@@ -54,6 +65,14 @@ class _ChatListPageState extends State<ChatListPage> {
   void navigateToChatDetails(String chatId) {
     print("Navigating to chat details for chat ID: $chatId");
     ChatService.subscribeToSpecificChat(channel, chatId);
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false; // Mark as unmounted
+    print("Disposing ChatListPage...");
+    channel.sink.close(); // Close the WebSocket connection
+    super.dispose();
   }
 
   @override
