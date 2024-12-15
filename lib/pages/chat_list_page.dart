@@ -119,14 +119,6 @@ class _ChatListPageState extends State<ChatListPage> {
 
   @override
   void dispose() {
-    _isMounted = false;
-    print("Disposing ChatListPage...");
-    channel.sink.close();
-    super.dispose();
-  }
-
-  @override
-  void dispose() {
     _isMounted = false; // Mark as unmounted
     print("Disposing ChatListPage...");
     channel.sink.close(); // Close the WebSocket connection
