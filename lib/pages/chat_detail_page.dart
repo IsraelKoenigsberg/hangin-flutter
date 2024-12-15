@@ -60,6 +60,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            ChatService.unsubscribeFromChat(widget.chatId, _channel);
             Navigator.pop(context);
           },
         ),

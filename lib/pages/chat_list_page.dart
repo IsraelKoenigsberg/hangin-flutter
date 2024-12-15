@@ -14,7 +14,8 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   late WebSocketChannel channel;
   List<Map<String, dynamic>> ongoingChats = [];
-  bool _isMounted = false;
+
+  bool _isMounted = false; // Track if the widget is still mounted
 
   @override
   void didChangeDependencies() {
@@ -44,7 +45,8 @@ class _ChatListPageState extends State<ChatListPage> {
               if (mounted) {
                 setState(() {
                   print("Updating ongoing chats...");
-                  ongoingChats = chats;
+
+                  ongoingChats = chats; // Update ongoing chats here
                 });
               }
             },
@@ -120,6 +122,14 @@ class _ChatListPageState extends State<ChatListPage> {
     _isMounted = false;
     print("Disposing ChatListPage...");
     channel.sink.close();
+    super.dispose();
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false; // Mark as unmounted
+    print("Disposing ChatListPage...");
+    channel.sink.close(); // Close the WebSocket connection
     super.dispose();
   }
 
