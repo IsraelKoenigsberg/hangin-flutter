@@ -165,6 +165,8 @@ class ChatService {
       print("Create chat command sent: $createChatMessage");
     } catch (e) {
       print("Error creating chat: $e");
+    }
+  }
 
   /// Unsubscribes from a specific chat channel.
   static void unsubscribeFromChat(String chatId, WebSocketChannel? channel) {
