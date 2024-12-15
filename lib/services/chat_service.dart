@@ -124,4 +124,22 @@ class ChatService {
       }
     }
   }
+
+  static void createNewChat(WebSocketChannel channel, String chatName) {
+    final createChatMessage = jsonEncode({
+      "command": "message",
+      "identifier": "{\"channel\":\"ChatsChannel\"}",
+      "data": jsonEncode({
+        "action": "createChat",
+        "name": chatName,
+      }),
+    });
+
+    try {
+      channel.sink.add(createChatMessage);
+      print("Create chat command sent: $createChatMessage");
+    } catch (e) {
+      print("Error creating chat: $e");
+    }
+  }
 }
