@@ -124,4 +124,15 @@ class ChatService {
       }
     }
   }
+
+  static void unsubscribeFromChat(String chatId, WebSocketChannel? channel) {
+    final unsubscribeMessage = {
+      "command": "unsubscribe",
+      "identifier": '{"channel":"ChatChannel", "id":"$chatId"}',
+    };
+
+    final jsonMessage =
+        jsonEncode(unsubscribeMessage); //Convert to JSON string.
+    channel?.sink.add(jsonMessage);
+  }
 }
