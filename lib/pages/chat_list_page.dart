@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
-import 'chat_detail_page.dart';
+import 'package:whats_up/services/web_socket_manager.dart';
 
 class ChatListPage extends StatefulWidget {
   @override
@@ -20,21 +20,14 @@ class _ChatListPageState extends State<ChatListPage> {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     String accessToken = tokenProvider.token!;
     print("Initializing WebSocket connection...");
-    initializeWebSocket(accessToken);
+    connectToWebSocket(accessToken);
   }
 
-  @override
-  void dispose() {
-    print("Closing WebSocket channel...");
-    channel.sink.close();
-    super.dispose();
-  }
-
-  void initializeWebSocket(String accessToken) {
-    print("Initializing WebSocket with token: $accessToken");
-    channel = ChatService.connectWebSocket(accessToken);
+  void connectToWebSocket(String accessToken) {
+    print(1111);
+    print("Connecting to WebSocket with token: $accessToken");
+    channel = WebSocketManager().connect(accessToken);
     ChatService.subscribeToChats(channel);
-
     // Listen to incoming messages for both ChatsChannel and ChatChannel
     channel.stream.listen(
       (message) {
@@ -53,7 +46,7 @@ class _ChatListPageState extends State<ChatListPage> {
       },
       onDone: () {
         print("WebSocket closed. Attempting to reconnect...");
-        initializeWebSocket(accessToken); // Automatically reconnect
+        connectToWebSocket(accessToken); // Automatically reconnect
       },
     );
   }
@@ -66,9 +59,9 @@ class _ChatListPageState extends State<ChatListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Ongoing Chats")),
+      appBar: AppBar(title: const Text("Ongoing Chats")),
       body: ongoingChats.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: ongoingChats.length,
               itemBuilder: (context, index) {

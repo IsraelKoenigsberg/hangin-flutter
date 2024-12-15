@@ -5,14 +5,17 @@ import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
+import 'package:whats_up/services/web_socket_manager.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final String chatId;
   final List<Map<String, dynamic>> chatMessages;
 
-  ChatDetailPage({required this.chatId, required this.chatMessages});
+  const ChatDetailPage(
+      {super.key, required this.chatId, required this.chatMessages});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatDetailPageState createState() => _ChatDetailPageState();
 }
 
@@ -25,13 +28,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void initState() {
     super.initState();
     _chatMessages = widget.chatMessages;
-    // Assuming you already have access to the WebSocketChannel
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     String accessToken = tokenProvider.token!;
     print("Access token: ");
     print(accessToken);
-    _channel =
-        ChatService.connectWebSocket(accessToken); // Replace with actual token
+    _channel = WebSocketManager().channel;
+    print("Channel");
+    print(_channel);
     ChatService.subscribeToSpecificChat(_channel, widget.chatId);
   }
 
@@ -39,43 +42,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     final messageText = _messageController.text.trim();
     print("message text: $messageText");
     final chatId = widget.chatId;
-    final sendM = jsonEncode({
-      "command": "message",
-      "identifier": "{\"channel\":\"ChatChannel\", \"id\":\"$chatId\"}",
-      "data":
-          "{\"action\":\"speak\",\"body\":\"$messageText\", \"kind\":\"text\", \"status\":\"sent\"}"
-    });
-
-    if (messageText.isNotEmpty) {
-      final sendMessage = jsonEncode({
-        "command": "message",
-        "identifier": jsonEncode({
-          "channel": "ChatChannel",
-          "id": widget.chatId,
-        }),
-        "data": jsonEncode({
-          "action": "speak",
-          "body": messageText,
-          "kind": "text",
-          "status": "sent",
-        }),
-      });
-
-      print("Attempting to send message: $sendM");
-      try {
-        _channel.sink.add(sendM);
-        print("Message sent successfully");
-        _messageController.clear();
-      } catch (e) {
-        print("Error sending message: $e");
-        // You might want to show an error message to the user here
-      }
-    }
+    ChatService.sendMessge(messageText, chatId, _channel);
+    _messageController.clear();
   }
 
   @override
   void dispose() {
-    _channel.sink.close();
     _messageController.dispose();
     super.dispose();
   }
@@ -86,7 +58,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       appBar: AppBar(
         title: Text("Chat #${widget.chatId}"),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -96,7 +68,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         children: [
           Expanded(
             child: _chatMessages.isEmpty
-                ? Center(child: Text("No messages yet."))
+                ? const Center(child: Text("No messages yet."))
                 : ListView.builder(
                     itemCount: _chatMessages.length,
                     itemBuilder: (context, index) {
@@ -116,14 +88,14 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Type your message...",
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),
               ],
