@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -13,6 +14,7 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   late WebSocketChannel channel;
   List<Map<String, dynamic>> ongoingChats = [];
+
   bool _isMounted = false; // Track if the widget is still mounted
 
   @override
@@ -43,6 +45,7 @@ class _ChatListPageState extends State<ChatListPage> {
               if (mounted) {
                 setState(() {
                   print("Updating ongoing chats...");
+
                   ongoingChats = chats; // Update ongoing chats here
                 });
               }
@@ -65,6 +68,61 @@ class _ChatListPageState extends State<ChatListPage> {
   void navigateToChatDetails(String chatId) {
     print("Navigating to chat details for chat ID: $chatId");
     ChatService.subscribeToSpecificChat(channel, chatId);
+  }
+
+  void createChatDialog() {
+    final chatNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Create New Chat"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: chatNameController,
+                  decoration:
+                      const InputDecoration(hintText: "Enter chat name"),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                final chatName = chatNameController.text.trim();
+
+                if (chatName.isNotEmpty) {
+                  createNewChat(chatName);
+                  Navigator.of(context).pop();
+                } else {
+                  print("All fields are required.");
+                }
+              },
+              child: const Text("Create"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void createNewChat(String chatName) {
+    ChatService.createNewChat(channel, chatName);
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    print("Disposing ChatListPage...");
+    channel.sink.close();
+    super.dispose();
   }
 
   @override
@@ -99,6 +157,11 @@ class _ChatListPageState extends State<ChatListPage> {
                 );
               },
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: createChatDialog,
+        child: const Icon(Icons.add),
+        tooltip: "Create New Chat",
+      ),
     );
   }
 }
