@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -151,8 +150,8 @@ class _ChatListPageState extends State<ChatListPage> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: createChatDialog,
-        child: const Icon(Icons.add),
         tooltip: "Create New Chat",
+        child: const Icon(Icons.add),
       ),
     );
   }
