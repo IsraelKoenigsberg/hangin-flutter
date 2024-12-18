@@ -87,13 +87,20 @@ class ChatService {
   /// Handles messages received from the ChatsChannel.
   static void _handleChatsChannelMessage(Map<String, dynamic> decodedMessage,
       Function(List<Map<String, dynamic>>) updateOngoingChats) {
+    print(33340);
     final chatMessage = decodedMessage['message'];
+    print(chatMessage);
+    print(chatMessage['chat']);
     // User created a new chat.
     if (chatMessage != null && chatMessage['ownChat'] != null) {
       final newChat = chatMessage['ownChat'];
       ongoingChats.add(newChat);
       updateOngoingChats(ongoingChats);
       print("New chat added: ${newChat['name']}");
+    } else if (chatMessage != null && chatMessage['chat'] != null) {
+      final newChat = chatMessage['chat'];
+      ongoingChats.add(newChat);
+      updateOngoingChats(ongoingChats);
     }
     // User entered chat list page after subsctribing to Web Socket.
     else if (chatMessage != null && chatMessage['chats'] != null) {
