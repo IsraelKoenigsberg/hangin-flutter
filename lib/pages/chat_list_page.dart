@@ -44,7 +44,6 @@ class _ChatListPageState extends State<ChatListPage> {
               if (mounted) {
                 setState(() {
                   print("Updating ongoing chats...");
-
                   ongoingChats = chats; // Update ongoing chats here
                 });
               }
@@ -150,8 +149,8 @@ class _ChatListPageState extends State<ChatListPage> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: createChatDialog,
-        child: const Icon(Icons.add),
         tooltip: "Create New Chat",
+        child: const Icon(Icons.add),
       ),
     );
   }

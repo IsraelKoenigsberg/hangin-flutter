@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -28,13 +26,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   void initState() {
     super.initState();
     _chatMessages = widget.chatMessages;
-    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    String accessToken = tokenProvider.token!;
-    print("Access token: ");
-    print(accessToken);
     _channel = WebSocketManager().channel;
-    print("Channel");
-    print(_channel);
     ChatService.subscribeToSpecificChat(_channel, widget.chatId);
   }
 
