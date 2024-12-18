@@ -10,6 +10,9 @@ class ChatService {
   /// value is a list of messages for that chat.
   static final Map<String, List<Map<String, dynamic>>> chatMessagesMap = {};
 
+  /// Stores the list of ongoing chats to allow direct manipulation
+  static List<Map<String, dynamic>> ongoingChats = [];
+
   /// Appends a new message to the chat history for a given chat ID.
   static void appendMessage(String chatId, Map<String, dynamic> newMessage) {
     chatMessagesMap.putIfAbsent(chatId, () => []).add(newMessage);
@@ -85,8 +88,17 @@ class ChatService {
   static void _handleChatsChannelMessage(Map<String, dynamic> decodedMessage,
       Function(List<Map<String, dynamic>>) updateOngoingChats) {
     final chatMessage = decodedMessage['message'];
-    if (chatMessage != null && chatMessage['chats'] != null) {
-      updateOngoingChats(List<Map<String, dynamic>>.from(chatMessage['chats']));
+    // User created a new chat.
+    if (chatMessage != null && chatMessage['ownChat'] != null) {
+      final newChat = chatMessage['ownChat'];
+      ongoingChats.add(newChat);
+      updateOngoingChats(ongoingChats);
+      print("New chat added: ${newChat['name']}");
+    }
+    // User entered chat list page after subsctribing to Web Socket.
+    else if (chatMessage != null && chatMessage['chats'] != null) {
+      ongoingChats = List<Map<String, dynamic>>.from(chatMessage['chats']);
+      updateOngoingChats(ongoingChats);
     }
   }
 
@@ -151,6 +163,7 @@ class ChatService {
   }
 
   static void createNewChat(WebSocketChannel channel, String chatName) {
+    print("Creaeting new chat");
     final createChatMessage = jsonEncode({
       "command": "message",
       "identifier": "{\"channel\":\"ChatsChannel\"}",

@@ -44,7 +44,6 @@ class _ChatListPageState extends State<ChatListPage> {
               if (mounted) {
                 setState(() {
                   print("Updating ongoing chats...");
-
                   ongoingChats = chats; // Update ongoing chats here
                 });
               }
