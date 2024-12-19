@@ -126,7 +126,16 @@ class _ChatListPageState extends State<ChatListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Ongoing Chats")),
+      appBar: AppBar(
+        title: const Text("Ongoing Chats"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child:
+                IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
+          )
+        ],
+      ),
       body: ongoingChats.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

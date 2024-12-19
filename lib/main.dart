@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/chat_list_page.dart';
 import 'package:whats_up/pages/home_page.dart';
 import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/services/token_provider.dart';
@@ -69,7 +70,7 @@ class _MyAppState extends State<MyApp> {
           } else if (snapshot.hasError) {
             return const RegisterPhoneNumber(); // Handle error case
           } else if (snapshot.data == true) {
-            return const HomePage(); // Token valid and not expired
+            return ChatListPage(); // Token valid and not expired
           } else {
             return const RegisterPhoneNumber(); // Token missing or expired
           }
