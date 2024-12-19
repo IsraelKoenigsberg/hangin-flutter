@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/chat_list_page.dart';
 import 'package:whats_up/pages/home_page.dart';
 import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
@@ -73,7 +74,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
               sendSelectedContactsToServer();
               final navigator = Navigator.of(context); // Store navigator
               navigator.push(
-                MaterialPageRoute(builder: (context) => const HomePage()),
+                MaterialPageRoute(builder: (context) => ChatListPage()),
               );
             },
             child: const Text("Upload", style: TextStyle(color: Colors.blue)),
