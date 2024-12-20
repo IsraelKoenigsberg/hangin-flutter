@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:whats_up/pages/contacts.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 import 'package:whats_up/services/web_socket_manager.dart';
@@ -129,11 +130,34 @@ class _ChatListPageState extends State<ChatListPage> {
       appBar: AppBar(
         title: const Text("Ongoing Chats"),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child:
-                IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
-          )
+          PopupMenuButton<String>(
+            onSelected: (String choice) {
+              switch (choice) {
+                case 'contacts':
+                  Navigator.push(
+                    // Navigate to ContactsPage
+                    context,
+                    MaterialPageRoute(builder: (context) => ContactsPage()),
+                  );
+                  break;
+                case 'signout':
+                  // Sign out logic (Implementation needed)
+                  print('Sign Out'); // Placeholder
+                  // _signOut(); // Your sign out function here
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'contacts',
+                child: Text('Contacts'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'signout',
+                child: Text('Sign Out'),
+              ),
+            ],
+          ),
         ],
       ),
       body: ongoingChats.isEmpty

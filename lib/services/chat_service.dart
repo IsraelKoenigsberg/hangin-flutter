@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:whats_up/pages/chat_detail_page.dart';
+import 'package:whats_up/pages/chat_folder/chat_detail_page.dart';
 
 /// Service class for managing chat functionality, including WebSocket communication,
 /// message handling, and navigation to the chat detail page.
