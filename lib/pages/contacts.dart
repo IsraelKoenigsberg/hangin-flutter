@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:whats_up/services/token_provider.dart';
 
 class ContactsPage extends StatelessWidget {
-  final String apiUrl = "base_url/friends"; // Replace with actual base URL
-  final String accessToken =
-      "insert_access_token_here"; // Replace with your access token
+  final String apiUrl =
+      "https://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/friends";
 
-  Future<Map<String, dynamic>> fetchContactsAndFriends() async {
+  const ContactsPage({super.key});
+
+  Future<Map<String, dynamic>> fetchContactsAndFriends(
+      String accessToken) async {
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -28,15 +32,24 @@ class ContactsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokenProvider = Provider.of<TokenProvider>(context);
+    final accessToken = tokenProvider.token;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Contacts and Friends'),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: fetchContactsAndFriends(),
+        future: accessToken != null
+            ? fetchContactsAndFriends(accessToken)
+            : null, // Only call if accessToken is available
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
+          } else if (accessToken == null) {
+            // Handle null accessToken case
+            return Center(
+                child: Text('Not logged in.')); // Or appropriate message
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -47,6 +60,8 @@ class ContactsPage extends StatelessWidget {
           final contacts = snapshot.data!['contacts'] ?? [];
 
           return ListView(
+            // ... (rest of your ListView builder code remains the same)
+
             children: [
               // Display friends
               if (friends.isNotEmpty) ...[
@@ -86,7 +101,7 @@ class ContactCard extends StatelessWidget {
   final Map<String, dynamic> contact;
   final bool isFriend;
 
-  const ContactCard({required this.contact, required this.isFriend});
+  const ContactCard({super.key, required this.contact, required this.isFriend});
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +129,7 @@ class ContactCard extends StatelessWidget {
 class ContactDetailsPage extends StatelessWidget {
   final Map<String, dynamic> contact;
 
-  const ContactDetailsPage({required this.contact});
+  const ContactDetailsPage({super.key, required this.contact});
 
   @override
   Widget build(BuildContext context) {
