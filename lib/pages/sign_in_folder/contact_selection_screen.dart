@@ -7,6 +7,10 @@ import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 class ContactSelectionScreen extends StatefulWidget {
+  final Widget  nextPage;
+
+  const ContactSelectionScreen({super.key, required this.nextPage});
+
   @override
   _ContactSelectionScreenState createState() => _ContactSelectionScreenState();
 }
@@ -74,7 +78,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
               sendSelectedContactsToServer();
               final navigator = Navigator.of(context); // Store navigator
               navigator.push(
-                MaterialPageRoute(builder: (context) => ChatListPage()),
+                MaterialPageRoute(builder: (context) => widget.nextPage),
               );
             },
             child: const Text("Upload", style: TextStyle(color: Colors.blue)),

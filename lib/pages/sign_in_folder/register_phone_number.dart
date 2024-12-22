@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:whats_up/constants/app_strings.dart';
+import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/sign_in_folder/authenticate_phone_number.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 
@@ -99,7 +100,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
                     final navigator = Navigator.of(context); // Store navigator
                     navigator.push(
                       MaterialPageRoute(
-                          builder: (context) => ContactSelectionScreen()),
+                          builder: (context) => ContactSelectionScreen(nextPage: ChatListPage(),)),
                     );
                   },
                   child: Text("Contact Upload Test")),

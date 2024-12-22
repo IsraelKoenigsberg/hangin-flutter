@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/pages/contacts.dart';
+import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 import 'package:whats_up/services/web_socket_manager.dart';
@@ -121,11 +122,14 @@ class _ChatListPageState extends State<ChatListPage> {
     _isMounted = false; // Mark as unmounted
     print("Disposing ChatListPage...");
     channel.sink.close(); // Close the WebSocket connection
+    
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+     final tokenProvider =
+                Provider.of<TokenProvider>(context); // Access the provider
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ongoing Chats"),
@@ -141,9 +145,13 @@ class _ChatListPageState extends State<ChatListPage> {
                   );
                   break;
                 case 'signout':
-                  // Sign out logic (Implementation needed)
-                  print('Sign Out'); // Placeholder
-                  // _signOut(); // Your sign out function here
+                   
+                  tokenProvider.deleteToken(); // Deletes the token and updates UI
+          final navigator = Navigator.of(context); // Store navigator
+          navigator.push(
+            MaterialPageRoute(
+                builder: (context) => const RegisterPhoneNumber()),
+          );
                   break;
               }
             },

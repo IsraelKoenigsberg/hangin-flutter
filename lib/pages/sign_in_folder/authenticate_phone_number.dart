@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_up/constants/app_strings.dart';
+import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 import 'package:whats_up/services/token_provider.dart';
 
@@ -91,7 +92,7 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
                       // If OTP is valid, navigate to Contact Screen
                       navigator.push(
                         MaterialPageRoute(
-                            builder: (context) => ContactSelectionScreen()),
+                            builder: (context) => ContactSelectionScreen(nextPage: ChatListPage(),)),
                       );
                     }
                   },

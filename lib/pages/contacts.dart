@@ -1,7 +1,9 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 class ContactsPage extends StatelessWidget {
@@ -37,7 +39,21 @@ class ContactsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contacts and Friends'),
+        title: const Text('Contacts and Friends'),
+        actions: [
+          // Add FAB in AppBar
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ContactSelectionScreen(nextPage: ContactsPage(),),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: accessToken != null
@@ -45,15 +61,15 @@ class ContactsPage extends StatelessWidget {
             : null, // Only call if accessToken is available
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (accessToken == null) {
             // Handle null accessToken case
-            return Center(
+            return const Center(
                 child: Text('Not logged in.')); // Or appropriate message
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No contacts or friends found.'));
+            return const Center(child: Text('No contacts or friends found.'));
           }
 
           final friends = snapshot.data!['friends'] ?? [];
@@ -65,8 +81,8 @@ class ContactsPage extends StatelessWidget {
             children: [
               // Display friends
               if (friends.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text('Friends',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -78,8 +94,8 @@ class ContactsPage extends StatelessWidget {
               ],
               // Display contacts
               if (contacts.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text('Contacts',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -109,7 +125,7 @@ class ContactCard extends StatelessWidget {
     final lastName = contact['last_name'] ?? '';
 
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+      margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
       child: ListTile(
         title: Text('$firstName $lastName'),
         subtitle: Text(isFriend ? 'Friend' : 'Contact'),
@@ -134,9 +150,9 @@ class ContactDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+     appBar: AppBar(
         title: Text('Contact Details'),
-      ),
+),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
