@@ -132,42 +132,43 @@ class _ChatListPageState extends State<ChatListPage> {
                 Provider.of<TokenProvider>(context); // Access the provider
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ongoing Chats"),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (String choice) {
-              switch (choice) {
-                case 'contacts':
-                  Navigator.push(
-                    // Navigate to ContactsPage
-                    context,
-                    MaterialPageRoute(builder: (context) => ContactsPage()),
-                  );
-                  break;
-                case 'signout':
-                   
-                  tokenProvider.deleteToken(); // Deletes the token and updates UI
-          final navigator = Navigator.of(context); // Store navigator
-          navigator.push(
-            MaterialPageRoute(
-                builder: (context) => const RegisterPhoneNumber()),
-          );
-                  break;
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'contacts',
-                child: Text('Contacts'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'signout',
-                child: Text('Sign Out'),
-              ),
-            ],
-          ),
-        ],
-      ),
+  title: const Text("Ongoing Chats"),
+  leading: null, // Removes the default back button
+  actions: [
+    PopupMenuButton<String>(
+      onSelected: (String choice) {
+        switch (choice) {
+          case 'contacts':
+            Navigator.push(
+              // Navigate to ContactsPage
+              context,
+              MaterialPageRoute(builder: (context) => ContactsPage()),
+            );
+            break;
+          case 'signout':
+            tokenProvider.deleteToken(); // Deletes the token and updates UI
+            final navigator = Navigator.of(context); // Store navigator
+            navigator.push(
+              MaterialPageRoute(
+                  builder: (context) => const RegisterPhoneNumber()),
+            );
+            break;
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'contacts',
+          child: Text('Contacts'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'signout',
+          child: Text('Sign Out'),
+        ),
+      ],
+    ),
+  ],
+),
+
       body: ongoingChats.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

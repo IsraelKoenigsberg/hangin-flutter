@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 import 'package:whats_up/services/token_provider.dart';
 
@@ -39,22 +40,34 @@ class ContactsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Contacts and Friends'),
-        actions: [
-          // Add FAB in AppBar
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ContactSelectionScreen(nextPage: ContactsPage(),),
-                ),
-              );
-            },
+  title: const Text('Contacts and Friends'),
+  actions: [
+    // Add FAB in AppBar
+    IconButton(
+      icon: const Icon(Icons.add),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ContactSelectionScreen(nextPage: ContactsPage(),),
           ),
-        ],
-      ),
+        );
+      },
+    ),
+  ],
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatListPage(), // Replace with the page you want to navigate to
+        ),
+      );
+    },
+  ),
+),
+
       body: FutureBuilder<Map<String, dynamic>>(
         future: accessToken != null
             ? fetchContactsAndFriends(accessToken)
