@@ -95,15 +95,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                  onPressed: () {
-                    final navigator = Navigator.of(context); // Store navigator
-                    navigator.push(
-                      MaterialPageRoute(
-                          builder: (context) => ContactSelectionScreen(nextPage: ChatListPage(),)),
-                    );
-                  },
-                  child: Text("Contact Upload Test")),
+             
               // Button to submit the phone number and trigger code generation
               ElevatedButton(
                 onPressed: () async {
