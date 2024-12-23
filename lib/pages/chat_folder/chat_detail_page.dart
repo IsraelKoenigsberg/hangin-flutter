@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/services/chat_service.dart';
-import 'package:whats_up/services/token_provider.dart';
 import 'package:whats_up/services/web_socket_manager.dart';
 
 class ChatDetailPage extends StatefulWidget {

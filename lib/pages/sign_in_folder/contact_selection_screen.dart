@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:provider/provider.dart';
-import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
-import 'package:whats_up/pages/home_page.dart';
 import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
+/// Screen for selecting contacts from the user's device and uploading them to the server.
 class ContactSelectionScreen extends StatefulWidget {
-  final Widget  nextPage;
+  /// The next page to navigate to after contact selection.
+  /// This depends on from where the user is navigating from.
+  final Widget nextPage;
 
+  /// Constructor for the ContactSelectionScreen.
   const ContactSelectionScreen({super.key, required this.nextPage});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ContactSelectionScreenState createState() => _ContactSelectionScreenState();
 }
 
+/// State for managing the contact selection screen.
 class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
+  /// List of all contacts fetched from the device.
   List<Contact> contacts = [];
+
+  /// List of selected contacts.
   List<Contact> selectedContacts = [];
+
+  /// Flag to indicate whether all contacts are selected.
   bool selectAll = false;
 
   @override
@@ -26,7 +35,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
     _fetchContacts();
   }
 
-  // Fetch contacts and set the state
+  /// Fetches contacts from the device.
   Future<void> _fetchContacts() async {
     try {
       Iterable<Contact> contactsIterable =
@@ -39,7 +48,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
     }
   }
 
-  // Toggle contact selection
+  /// Toggles the selection state of a contact.
   void _onContactSelected(Contact contact, bool isSelected) {
     setState(() {
       isSelected
@@ -48,12 +57,53 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
     });
   }
 
-  // Toggle select all contacts
+  /// Toggles the "select all" state and updates the selected contacts accordingly.
   void _onSelectAllChanged(bool isSelected) {
     setState(() {
       selectAll = isSelected;
       selectedContacts = isSelected ? List.from(contacts) : [];
     });
+  }
+
+  /// Sends the selected contacts to the server.
+  Future<void> sendSelectedContactsToServer() async {
+    // Processes the selected contacts to create a list of maps.
+    // Each map contains the first name, last name, and number of a contact.
+    List<Map<String, dynamic>> selectedContactsData = selectedContacts
+        .map((contact) {
+          String displayName = contact.displayName ?? "Unknown";
+          List<String> nameParts = displayName.split(" ");
+          String firstName = nameParts.isNotEmpty ? nameParts.first : "";
+          String lastName =
+              nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "";
+
+          List<String> phones = contact.phones
+                  ?.map((phone) => phone.value ?? "")
+                  .where((phone) => phone.isNotEmpty)
+                  .toList() ??
+              [];
+
+          return phones.map((phone) {
+            return {
+              'first_name': firstName,
+              'last_name': lastName,
+              'number': phone,
+            };
+          }).toList();
+        })
+        .expand((contactList) => contactList)
+        .toList();
+
+    if (selectedContactsData.isEmpty) {
+      print("No contacts selected.");
+      return;
+    }
+
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final accessToken = tokenProvider.token;
+
+    await ServerService()
+        .sendContactsToServer(selectedContactsData, accessToken);
   }
 
   @override
@@ -76,8 +126,8 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
           TextButton(
             onPressed: () {
               sendSelectedContactsToServer();
-              final navigator = Navigator.of(context); // Store navigator
-              navigator.push(
+              Navigator.push(
+                context,
                 MaterialPageRoute(builder: (context) => widget.nextPage),
               );
             },
@@ -110,48 +160,5 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
               },
             ),
     );
-  }
-
-  // Send selected contacts to the server
-  Future<void> sendSelectedContactsToServer() async {
-    List<Map<String, dynamic>> selectedContactsData = selectedContacts
-        .map((contact) {
-          // Split the display name into first and last name
-          String displayName = contact.displayName ?? "Unknown";
-          List<String> nameParts = displayName.split(" ");
-          String firstName = nameParts.isNotEmpty ? nameParts.first : "";
-          String lastName =
-              nameParts.length > 1 ? nameParts.sublist(1).join(" ") : "";
-          print("First Name: $firstName, Last Name: $lastName");
-          // Collect the phone numbers
-          List<String> phones = contact.phones
-                  ?.map((phone) => phone.value ?? "")
-                  .where((phone) => phone.isNotEmpty)
-                  .toList() ??
-              [];
-
-          // Create an object for each phone number
-          return phones.map((phone) {
-            return {
-              'first_name': firstName,
-              'last_name': lastName,
-              'number': phone,
-            };
-          }).toList();
-        })
-        .expand((contactList) => contactList)
-        .toList();
-
-    if (selectedContactsData.isEmpty) {
-      print("No contacts selected.");
-      return;
-    }
-    print(selectedContactsData.toString());
-    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final accessToken = tokenProvider.token;
-
-    // Call the function to upload this list to the server
-    await ServerService()
-        .sendContactsToServer(selectedContactsData, accessToken);
   }
 }

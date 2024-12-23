@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:whats_up/pages/contacts.dart';
+import 'package:whats_up/pages/contacts/contacts.dart';
 import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
@@ -122,53 +122,53 @@ class _ChatListPageState extends State<ChatListPage> {
     _isMounted = false; // Mark as unmounted
     print("Disposing ChatListPage...");
     channel.sink.close(); // Close the WebSocket connection
-    
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-     final tokenProvider =
-                Provider.of<TokenProvider>(context); // Access the provider
+    final tokenProvider =
+        Provider.of<TokenProvider>(context); // Access the provider
     return Scaffold(
       appBar: AppBar(
-  title: const Text("Ongoing Chats"),
-  leading: null, // Removes the default back button
-  actions: [
-    PopupMenuButton<String>(
-      onSelected: (String choice) {
-        switch (choice) {
-          case 'contacts':
-            Navigator.push(
-              // Navigate to ContactsPage
-              context,
-              MaterialPageRoute(builder: (context) => ContactsPage()),
-            );
-            break;
-          case 'signout':
-            tokenProvider.deleteToken(); // Deletes the token and updates UI
-            final navigator = Navigator.of(context); // Store navigator
-            navigator.push(
-              MaterialPageRoute(
-                  builder: (context) => const RegisterPhoneNumber()),
-            );
-            break;
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: 'contacts',
-          child: Text('Contacts'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'signout',
-          child: Text('Sign Out'),
-        ),
-      ],
-    ),
-  ],
-),
-
+        title: const Text("Ongoing Chats"),
+        leading: null, // Removes the default back button
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String choice) {
+              switch (choice) {
+                case 'contacts':
+                  Navigator.push(
+                    // Navigate to ContactsPage
+                    context,
+                    MaterialPageRoute(builder: (context) => ContactsPage()),
+                  );
+                  break;
+                case 'signout':
+                  tokenProvider
+                      .deleteToken(); // Deletes the token and updates UI
+                  final navigator = Navigator.of(context); // Store navigator
+                  navigator.push(
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterPhoneNumber()),
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'contacts',
+                child: Text('Contacts'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'signout',
+                child: Text('Sign Out'),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: ongoingChats.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
