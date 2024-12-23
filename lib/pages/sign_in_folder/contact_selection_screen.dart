@@ -115,8 +115,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
           preferredSize:
               const Size.fromHeight(kToolbarHeight), // Same height as AppBar
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 8), // Adjust padding as needed
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               mainAxisAlignment:
                   MainAxisAlignment.spaceBetween, // Align items along the row

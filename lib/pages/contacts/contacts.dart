@@ -8,9 +8,11 @@ import 'package:whats_up/pages/contacts/contact_detail_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 import 'package:whats_up/services/token_provider.dart';
 
+/// Page displaying the user's contacts and friends.
 class ContactsPage extends StatelessWidget {
   const ContactsPage({super.key});
 
+  /// Fetches contacts and friends from the server.
   Future<Map<String, dynamic>> fetchContactsAndFriends(
       String accessToken) async {
     const String baseUrl = AppVariables.baseUrl;
@@ -43,10 +45,11 @@ class ContactsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Contacts and Friends'),
         actions: [
-          // Add FAB in AppBar
+          // "Add Contact" button
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
+              // Navigate to contact selection screen
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -59,43 +62,45 @@ class ContactsPage extends StatelessWidget {
           ),
         ],
         leading: IconButton(
+          // Back button to navigate to ChatListPage
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    ChatListPage(), // Replace with the page you want to navigate to
+                builder: (context) => ChatListPage(),
               ),
             );
           },
         ),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: accessToken != null
-            ? fetchContactsAndFriends(accessToken)
-            : null, // Only call if accessToken is available
+        // Fetch data asynchronously
+        future:
+            accessToken != null ? fetchContactsAndFriends(accessToken) : null,
         builder: (context, snapshot) {
+          // Display loading indicator while fetching data
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (accessToken == null) {
-            // Handle null accessToken case
-            return const Center(
-                child: Text('Not logged in.')); // Or appropriate message
+            // Handle the case where the user is not logged in
+            return const Center(child: Text('Not logged in.'));
           } else if (snapshot.hasError) {
+            // Display error message if data fetching fails
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            // Display message if no contacts or friends are found
             return const Center(child: Text('No contacts or friends found.'));
           }
 
+          // Extract friends and contacts from the fetched data
           final friends = snapshot.data!['friends'] ?? [];
           final contacts = snapshot.data!['contacts'] ?? [];
 
+          // Build the list of contacts and friends
           return ListView(
-            // ... (rest of your ListView builder code remains the same)
-
             children: [
-              // Display friends
+              // Display friends section
               if (friends.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -108,7 +113,7 @@ class ContactsPage extends StatelessWidget {
                         ContactCard(contact: friend, isFriend: true))
                     .toList(),
               ],
-              // Display contacts
+              // Display contacts section
               if (contacts.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.all(8.0),
@@ -146,6 +151,7 @@ class ContactCard extends StatelessWidget {
         title: Text('$firstName $lastName'),
         subtitle: Text(isFriend ? 'Friend' : 'Contact'),
         onTap: () {
+          // Navigate to contact details page
           Navigator.push(
             context,
             MaterialPageRoute(

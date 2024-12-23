@@ -18,15 +18,6 @@ class ChatService {
     chatMessagesMap.putIfAbsent(chatId, () => []).add(newMessage);
   }
 
-  /// Establishes a WebSocket connection using the provided access token.
-  /// Consider moving this to WebSocketManager for better separation of concerns.
-  static WebSocketChannel connectWebSocket(String accessToken) {
-    String url =
-        "wss://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/cable?access_token=$accessToken";
-    print("Connecting to WebSocket with URL: $url");
-    return WebSocketChannel.connect(Uri.parse(url));
-  }
-
   /// Subscribes to the ChatsChannel to receive updates on ongoing chats.
   static void subscribeToChats(WebSocketChannel channel) {
     final subscriptionMessage = jsonEncode({

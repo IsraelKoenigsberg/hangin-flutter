@@ -30,7 +30,3 @@ class ServerService {
     }
   }
 }
-
-// json object that has 1 field friends with is an array of json obejects - first_name, last_name, and number
-// connect to web socket. wss://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/cable?access_token=$accessToken. Needs 
-// http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/

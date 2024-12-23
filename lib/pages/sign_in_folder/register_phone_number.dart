@@ -138,7 +138,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
     );
   }
 
-  // Function to send a request to the server to generate a 2FA code for the phone number
+  /// Function to send a request to the server to generate a 2FA code for the phone number
   Future<void> getCode() async {
     String number = phoneNumberController.text;
     debugPrint("Number is:");
