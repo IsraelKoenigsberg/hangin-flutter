@@ -133,23 +133,21 @@ class _ChatListPageState extends State<ChatListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ongoing Chats"),
-        leading: null, // Removes the default back button
+        automaticallyImplyLeading:
+            false, // Ensures the back button is not added
         actions: [
           PopupMenuButton<String>(
             onSelected: (String choice) {
               switch (choice) {
                 case 'contacts':
                   Navigator.push(
-                    // Navigate to ContactsPage
                     context,
                     MaterialPageRoute(builder: (context) => ContactsPage()),
                   );
                   break;
                 case 'signout':
-                  tokenProvider
-                      .deleteToken(); // Deletes the token and updates UI
-                  final navigator = Navigator.of(context); // Store navigator
-                  navigator.push(
+                  tokenProvider.deleteToken();
+                  Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const RegisterPhoneNumber()),
                   );

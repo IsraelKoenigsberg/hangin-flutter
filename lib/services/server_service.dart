@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:whats_up/constants/app_variables.dart';
 
 class ServerService {
   Future<void> sendContactsToServer(
       List<Map<String, dynamic>> friendsList, String? accessToken) async {
     String contactsJson = jsonEncode({'friends': friendsList});
-    String url =
-        'https://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/friends?access_token=$accessToken';
+    String baseUrl = AppVariables.baseUrl;
+    String url = '$baseUrl/friends?access_token=$accessToken';
 
     try {
       final response = await http.post(

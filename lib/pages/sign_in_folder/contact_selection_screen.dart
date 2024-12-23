@@ -111,29 +111,55 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Select Contacts"),
-        actions: [
-          Row(
-            children: [
-              Checkbox(
-                value: selectAll,
-                onChanged: (bool? value) {
-                  _onSelectAllChanged(value ?? false);
-                },
-              ),
-              const Text("Select All", style: TextStyle(color: Colors.blue)),
-            ],
+        bottom: PreferredSize(
+          preferredSize:
+              const Size.fromHeight(kToolbarHeight), // Same height as AppBar
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16, vertical: 8), // Adjust padding as needed
+            child: Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween, // Align items along the row
+              children: [
+                Row(
+                  children: [
+                    Checkbox(
+                      value: selectAll,
+                      onChanged: (bool? value) {
+                        _onSelectAllChanged(value ?? false);
+                      },
+                    ),
+                    const Text("Select All",
+                        style: TextStyle(color: Colors.blue)),
+                  ],
+                ),
+                Row(children: [
+                  TextButton(
+                    onPressed: () {
+                      sendSelectedContactsToServer();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => widget.nextPage),
+                      );
+                    },
+                    child: const Text("Upload",
+                        style: TextStyle(color: Colors.blue)),
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => widget.nextPage),
+                        );
+                      },
+                      child: const Text("Cancel")),
+                ])
+              ],
+            ),
           ),
-          TextButton(
-            onPressed: () {
-              sendSelectedContactsToServer();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => widget.nextPage),
-              );
-            },
-            child: const Text("Upload", style: TextStyle(color: Colors.blue)),
-          ),
-        ],
+        ),
       ),
       body: contacts.isEmpty
           ? const Center(child: CircularProgressIndicator())

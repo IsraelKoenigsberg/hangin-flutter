@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
+import 'package:whats_up/constants/app_variables.dart';
 
 class TokenProvider with ChangeNotifier {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
@@ -76,9 +77,8 @@ class TokenProvider with ChangeNotifier {
     if (refreshToken == null || clientId == null || clientSecret == null) {
       throw Exception("Missing refresh token or client credentials.");
     }
-
-    final uri = Uri.parse(
-        'https://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/oauth'
+    String baseUrl = AppVariables.baseUrl;
+    final uri = Uri.parse('$baseUrl/oauth'
         '/token?client_id=$clientId&client_secret=$clientSecret'
         '&grant_type=refresh_token&refresh_token=$refreshToken');
 
