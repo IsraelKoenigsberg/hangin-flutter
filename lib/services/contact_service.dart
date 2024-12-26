@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:whats_up/constants/app_variables.dart';
 
-class ServerService {
+class ContactService {
   Future<void> sendContactsToServer(
       List<Map<String, dynamic>> friendsList, String? accessToken) async {
     String contactsJson = jsonEncode({'friends': friendsList});
