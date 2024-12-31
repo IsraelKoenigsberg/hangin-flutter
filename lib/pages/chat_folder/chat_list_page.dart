@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:whats_up/pages/contacts/contacts.dart';
+import 'package:whats_up/pages/profile_page.dart';
 import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
@@ -152,6 +153,14 @@ class _ChatListPageState extends State<ChatListPage> {
                         builder: (context) => const RegisterPhoneNumber()),
                   );
                   break;
+                case 'profile': // New case for Profile
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const ProfilePage()), // Navigate to ProfilePage
+                  );
+                  break;
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -162,6 +171,10 @@ class _ChatListPageState extends State<ChatListPage> {
               const PopupMenuItem<String>(
                 value: 'signout',
                 child: Text('Sign Out'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'profile', // Add the Profile menu item
+                child: Text('Profile'),
               ),
             ],
           ),
