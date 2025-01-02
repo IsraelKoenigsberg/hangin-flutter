@@ -5,18 +5,24 @@ import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
+/// The main function that launches the app.
 void main() {
   runApp(
     MultiProvider(
+      // Provides multiple dependencies to the app.
       providers: [
-        ChangeNotifierProvider(create: (_) => TokenProvider()..loadToken()),
-        Provider<ServerService>(create: (_) => ServerService()),
+        ChangeNotifierProvider(
+            create: (_) => TokenProvider()
+              ..loadToken()), // Provides the TokenProvider, loading the token initially.
+        Provider<ServerService>(
+            create: (_) => ServerService()), // Provides the ServerService.
       ],
-      child: const MyApp(),
+      child: const MyApp(), // The root widget of the app.
     ),
   );
 }
 
+/// The root widget of the app.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -24,70 +30,87 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+/// Manages the state of the MyApp widget.
 class _MyAppState extends State<MyApp> {
+  /// Future that checks the token status when the app starts.
   late Future<bool> _initialCheck;
 
   @override
   void initState() {
     super.initState();
-    _initialCheck = _checkTokenStatus();
+    _initialCheck = _checkTokenStatus(); // Check token status on startup.
   }
 
-  /// Check token validity and expiration status
+  /// Checks the validity and expiration status of the access token.
   Future<bool> _checkTokenStatus() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    await tokenProvider.loadToken();
+    await tokenProvider.loadToken(); // Load the token from storage.
 
+    // If no token is found, return false (navigate to login).
     if (tokenProvider.token == null) {
       return false;
     }
 
     bool isExpired = await tokenProvider.isTokenExpired();
+    // If token is expired, attempt to refresh it.
     if (isExpired) {
       try {
         await tokenProvider.refreshAccessToken();
       } catch (e) {
-        print('Error refreshing token: $e');
-        return false;
+        print('Error refreshing token: $e'); // Log the error.
+        return false; // Return false if refresh fails.
       }
     }
-    return true;
+
+    return true; // Token is valid or was successfully refreshed.
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      // The main MaterialApp widget.
+      debugShowCheckedModeBanner: false, // Hide the debug banner.
       theme: ThemeData(
+        // Defines the app's theme.
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Colors.deepPurple, // Base color for the color scheme.
           primary: Colors.deepPurple,
           secondary: Colors.amber,
           surface: Colors.white,
           background: Colors.grey.shade100,
           error: Colors.redAccent,
         ),
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           displayLarge: TextStyle(
+              // Style for large display text.
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.deepPurple),
           titleLarge: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black87),
-          bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
-          bodyMedium: TextStyle(fontSize: 14, color: Colors.black54),
+              // Style for large titles.
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87),
+          bodyLarge: TextStyle(
+              fontSize: 16, color: Colors.black87), // Style for body text.
+          bodyMedium: TextStyle(
+              fontSize: 14,
+              color: Colors.black54), // Style for smaller body text.
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
+          // Theme for elevated buttons.
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
-            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            textStyle:
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
+          // Theme for input decorations.
           filled: true,
           fillColor: Colors.grey.shade200,
           border: OutlineInputBorder(
@@ -96,10 +119,11 @@ class _MyAppState extends State<MyApp> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.deepPurple, width: 2),
+            borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
           ),
         ),
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
+          // Theme for app bars.
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
           centerTitle: true,
@@ -109,24 +133,24 @@ class _MyAppState extends State<MyApp> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        useMaterial3: true,
+        useMaterial3: true, // Use Material Design 3.
       ),
-
-      themeMode:
-          ThemeMode.system, // Automatically switch based on system settings
+      themeMode: ThemeMode.system, // Use the system's theme mode.
       home: FutureBuilder<bool>(
-        future: _initialCheck,
+        // Builds the initial home screen based on token status.
+        future: _initialCheck, // The future that checks the token.
         builder: (context, snapshot) {
+          // Builder function for the FutureBuilder.
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
                 child:
-                    CircularProgressIndicator()); // Show a loader while checking
+                    CircularProgressIndicator()); // Show loading indicator while checking token.
           } else if (snapshot.hasError) {
-            return const RegisterPhoneNumber(); // Handle error case
+            return const RegisterPhoneNumber(); // Navigate to registration if an error occurs.
           } else if (snapshot.data == true) {
-            return ChatListPage(); // Token valid and not expired
+            return const ChatListPage(); // Navigate to chat list if the token is valid.
           } else {
-            return const RegisterPhoneNumber(); // Token missing or expired
+            return const RegisterPhoneNumber(); // Navigate to registration if the token is invalid.
           }
         },
       ),

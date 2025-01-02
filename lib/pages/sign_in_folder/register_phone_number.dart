@@ -48,7 +48,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
               TextField(
                 controller: phoneNumberController,
                 keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: AppStrings.enterNumberHint,
                 ),
               ),
@@ -67,7 +67,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
                     );
                   }
                 },
-                child: Text(AppStrings.continueString),
+                child: const Text(AppStrings.continueString),
               ),
             ],
           ),
