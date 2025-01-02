@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:whats_up/constants/app_variables.dart';
-import 'package:whats_up/services/token_provider.dart';
 
 class ServerService {
   String baseUrl = AppVariables.baseUrl;
@@ -34,8 +32,6 @@ class ServerService {
   }
 
   Future<Map<String, dynamic>> getUserInfo(String accessToken) async {
-    String firstName;
-    String lastName;
     String url = '$baseUrl/user';
     try {
       final response = await http.get(

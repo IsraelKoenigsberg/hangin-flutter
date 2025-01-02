@@ -28,8 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (token == null) return;
 
     try {
-      final userInfo =
-          await ServerService().getUserInfo(token) as Map<String, dynamic>;
+      final userInfo = await ServerService().getUserInfo(token);
       setState(() {
         _userInfo = userInfo;
         _firstNameController.text = userInfo['first_name'] ?? '';
