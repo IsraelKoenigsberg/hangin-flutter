@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'package:whats_up/constants/app_variables.dart';
 import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/contacts/contact_detail_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
