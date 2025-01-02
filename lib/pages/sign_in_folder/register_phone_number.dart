@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:whats_up/constants/app_strings.dart';
+import 'package:whats_up/constants/app_variables.dart';
 import 'package:whats_up/pages/sign_in_folder/authenticate_phone_number.dart';
-import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 
 /// Registers a user phone number by sending it a One Time Password (OTP) for
 /// Two Factor Authentication.
@@ -71,7 +71,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
                       color: Colors.blue.shade100,
                       spreadRadius: 2,
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -79,7 +79,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
                   controller: phoneNumberController,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
-                    hintText: "Enter phone number",
+                    hintText: AppStrings.enterNumberHint,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide.none,
@@ -94,15 +94,7 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
-                  onPressed: () {
-                    final navigator = Navigator.of(context); // Store navigator
-                    navigator.push(
-                      MaterialPageRoute(
-                          builder: (context) => ContactSelectionScreen()),
-                    );
-                  },
-                  child: Text("Contact Upload Test")),
+
               // Button to submit the phone number and trigger code generation
               ElevatedButton(
                 onPressed: () async {
@@ -146,14 +138,13 @@ class _TwoFactorCode extends State<RegisterPhoneNumber> {
     );
   }
 
-  // Function to send a request to the server to generate a 2FA code for the phone number
+  /// Function to send a request to the server to generate a 2FA code for the phone number
   Future<void> getCode() async {
     String number = phoneNumberController.text;
     debugPrint("Number is:");
     debugPrint(number);
-
-    final String url =
-        'https://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/create?number=$number';
+    const baseUrl = AppVariables.baseUrl;
+    final String url = '$baseUrl/create?number=$number';
 
     try {
       final response = await http.post(

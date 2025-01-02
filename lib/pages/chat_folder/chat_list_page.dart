@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:whats_up/pages/contacts/contacts.dart';
+import 'package:whats_up/pages/profile_page.dart';
+import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
 import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 import 'package:whats_up/services/web_socket_manager.dart';
@@ -120,20 +123,61 @@ class _ChatListPageState extends State<ChatListPage> {
     _isMounted = false; // Mark as unmounted
     print("Disposing ChatListPage...");
     channel.sink.close(); // Close the WebSocket connection
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final tokenProvider =
+        Provider.of<TokenProvider>(context); // Access the provider
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ongoing Chats"),
+        automaticallyImplyLeading:
+            false, // Ensures the back button is not added
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child:
-                IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
-          )
+          PopupMenuButton<String>(
+            onSelected: (String choice) {
+              switch (choice) {
+                case 'contacts':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ContactsPage()),
+                  );
+                  break;
+                case 'signout':
+                  tokenProvider.deleteToken();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterPhoneNumber()),
+                  );
+                  break;
+                case 'profile': // New case for Profile
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const ProfilePage()), // Navigate to ProfilePage
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'contacts',
+                child: Text('Contacts'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'signout',
+                child: Text('Sign Out'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'profile', // Add the Profile menu item
+                child: Text('Profile'),
+              ),
+            ],
+          ),
         ],
       ),
       body: ongoingChats.isEmpty

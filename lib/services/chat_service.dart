@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:whats_up/pages/chat_detail_page.dart';
+import 'package:whats_up/pages/chat_folder/chat_detail_page.dart';
 
 /// Service class for managing chat functionality, including WebSocket communication,
 /// message handling, and navigation to the chat detail page.
@@ -16,15 +16,6 @@ class ChatService {
   /// Appends a new message to the chat history for a given chat ID.
   static void appendMessage(String chatId, Map<String, dynamic> newMessage) {
     chatMessagesMap.putIfAbsent(chatId, () => []).add(newMessage);
-  }
-
-  /// Establishes a WebSocket connection using the provided access token.
-  /// Consider moving this to WebSocketManager for better separation of concerns.
-  static WebSocketChannel connectWebSocket(String accessToken) {
-    String url =
-        "wss://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/cable?access_token=$accessToken";
-    print("Connecting to WebSocket with URL: $url");
-    return WebSocketChannel.connect(Uri.parse(url));
   }
 
   /// Subscribes to the ChatsChannel to receive updates on ongoing chats.

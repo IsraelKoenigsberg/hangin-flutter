@@ -4,4 +4,5 @@ class AppStrings {
   static const String invalidNumberMessage = "Invalid Number";
   static const String enterOTP = "Please Enter Your Verification Code";
   static const String invalidOTPMessage = "Invalid Verification Code";
+  static const String enterNumberHint = "Enter phone number";
 }

@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_up/constants/app_strings.dart';
+import 'package:whats_up/constants/app_variables.dart';
+import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
 import 'package:whats_up/services/token_provider.dart';
 
@@ -91,7 +93,9 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
                       // If OTP is valid, navigate to Contact Screen
                       navigator.push(
                         MaterialPageRoute(
-                            builder: (context) => ContactSelectionScreen()),
+                            builder: (context) => ContactSelectionScreen(
+                                  nextPage: ChatListPage(),
+                                )),
                       );
                     }
                   },
@@ -118,10 +122,9 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
     // Client credentials for authentication
     const String clientId = 'lRFvRZk-bHaquwnHC4ME0PE9Dha3aNmW84gaFFLAO1c';
     const String clientSecret = "mRzrOqNuMVfrmIvVZEWs6wS-2igjCj587LMgnUBfoyE";
-
+    String baseUrl = AppVariables.baseUrl;
     // Construct the URL for sending OTP with client credentials
-    final String url =
-        'https://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/oauth'
+    final String url = '$baseUrl/oauth'
         '/token?client_id=$clientId&client_secret=$clientSecret'
         '&grant_type=password&number=$number&code=$code';
 
@@ -178,4 +181,4 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
 }
 // 'http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/friends?access_token=
 //Save access token on device. abd save refresh token (for later). send friends (contacts to the url)
-// 
+//
