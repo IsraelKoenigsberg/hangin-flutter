@@ -1,40 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'package:whats_up/constants/app_variables.dart';
 import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/contacts/contact_detail_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
+import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 /// Page displaying the user's contacts and friends.
 class ContactsPage extends StatelessWidget {
   const ContactsPage({super.key});
-
-  /// Fetches contacts and friends from the server.
-  Future<Map<String, dynamic>> fetchContactsAndFriends(
-      String accessToken) async {
-    const String baseUrl = AppVariables.baseUrl;
-    const String apiUrl = '$baseUrl/friends';
-
-    try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to load contacts and friends');
-      }
-    } catch (e) {
-      throw Exception('Error fetching data: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +50,9 @@ class ContactsPage extends StatelessWidget {
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         // Fetch data asynchronously
-        future:
-            accessToken != null ? fetchContactsAndFriends(accessToken) : null,
+        future: accessToken != null
+            ? ServerService().fetchContactsAndFriends(accessToken)
+            : null,
         builder: (context, snapshot) {
           // Display loading indicator while fetching data
           if (snapshot.connectionState == ConnectionState.waiting) {

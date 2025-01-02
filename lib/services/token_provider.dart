@@ -4,8 +4,9 @@ import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
 import 'package:whats_up/constants/app_variables.dart';
 
+/// Mamages the access token and gives access to it in all classes.
 class TokenProvider with ChangeNotifier {
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   String? _token;
 

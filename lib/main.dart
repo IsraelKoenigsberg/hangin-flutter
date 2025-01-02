@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/sign_in_folder/register_phone_number.dart';
+import 'package:whats_up/services/server_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 void main() {
@@ -9,6 +10,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TokenProvider()..loadToken()),
+        Provider<ServerService>(create: (_) => ServerService()),
       ],
       child: const MyApp(),
     ),

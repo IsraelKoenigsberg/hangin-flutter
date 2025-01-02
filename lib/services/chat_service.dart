@@ -88,6 +88,7 @@ class ChatService {
       ongoingChats.add(newChat);
       updateOngoingChats(ongoingChats);
       print("New chat added: ${newChat['name']}");
+      // Contact of user made a chat
     } else if (chatMessage != null && chatMessage['chat'] != null) {
       final newChat = chatMessage['chat'];
       ongoingChats.add(newChat);
@@ -111,6 +112,8 @@ class ChatService {
           List<Map<String, dynamic>>.from(chatMessage['messages']);
       _navigateToChatDetail(context, chatId);
     } else if (chatMessage != null && chatMessage['message'] != null) {
+      print("Contact made a chat");
+
       // New incoming message received within a chat.
       appendMessage(chatId, Map<String, dynamic>.from(chatMessage['message']));
       _navigateToChatDetail(context, chatId,
@@ -160,6 +163,7 @@ class ChatService {
     }
   }
 
+  /// Handles a user creating a new chat. Refreshes UI when doing so.
   static void createNewChat(WebSocketChannel channel, String chatName) {
     print("Creaeting new chat");
     final createChatMessage = jsonEncode({
