@@ -153,7 +153,10 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
                               builder: (context) => widget.nextPage),
                         );
                       },
-                      child: const Text("Cancel")),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.blue),
+                      )),
                 ])
               ],
             ),
