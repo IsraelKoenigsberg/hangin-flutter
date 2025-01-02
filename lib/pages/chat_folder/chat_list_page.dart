@@ -8,16 +8,25 @@ import 'package:whats_up/services/chat_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 import 'package:whats_up/services/web_socket_manager.dart';
 
+/// Displays a list of ongoing chats and allows creating new chats.
 class ChatListPage extends StatefulWidget {
+  const ChatListPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ChatListPageState createState() => _ChatListPageState();
 }
 
+/// Manages the state of the chat list page.
 class _ChatListPageState extends State<ChatListPage> {
+  /// WebSocket channel for real-time communication.
   late WebSocketChannel channel;
+
+  /// List of ongoing chats.
   List<Map<String, dynamic>> ongoingChats = [];
 
-  bool _isMounted = false; // Track if the widget is still mounted
+  /// Tracks whether the widget is mounted.
+  bool _isMounted = false;
 
   @override
   void didChangeDependencies() {
@@ -26,28 +35,28 @@ class _ChatListPageState extends State<ChatListPage> {
       _isMounted = true;
       final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
       String accessToken = tokenProvider.token!;
-      print("Initializing WebSocket connection...");
-      connectToWebSocket(accessToken);
+      connectToWebSocket(accessToken); // Establish WebSocket connection.
     }
   }
 
+  /// Establishes a WebSocket connection and sets up listeners.
   void connectToWebSocket(String accessToken) {
-    print("Connecting to WebSocket with token: $accessToken");
-    channel = WebSocketManager().connect(accessToken);
-    ChatService.subscribeToChats(channel);
+    channel = WebSocketManager()
+        .connect(accessToken); // Connect using WebSocketManager.
+    ChatService.subscribeToChats(channel); // Subscribe to chats channel.
 
     channel.stream.listen(
       (message) {
+        // Listen for incoming messages on the WebSocket.
         if (mounted) {
-          print("Received WebSocket message: $message");
           ChatService.handleIncomingMessage(
-            message,
+            message, // Handle the received message.
             context,
             (chats) {
+              // Callback to update ongoing chats.
               if (mounted) {
                 setState(() {
-                  print("Updating ongoing chats...");
-                  ongoingChats = chats; // Update ongoing chats here
+                  ongoingChats = chats;
                 });
               }
             },
@@ -55,22 +64,25 @@ class _ChatListPageState extends State<ChatListPage> {
         }
       },
       onError: (error) {
+        // Handle WebSocket errors.
         print("WebSocket Error: $error");
       },
       onDone: () {
+        // Handle WebSocket closure.
         if (mounted) {
-          print("WebSocket closed. Attempting to reconnect...");
-          connectToWebSocket(accessToken); // Automatically reconnect
+          connectToWebSocket(
+              accessToken); // Reconnect if WebSocket connection closes.
         }
       },
     );
   }
 
+  /// Navigates to the chat details page for a given chat ID.
   void navigateToChatDetails(String chatId) {
-    print("Navigating to chat details for chat ID: $chatId");
     ChatService.subscribeToSpecificChat(channel, chatId);
   }
 
+  /// Displays a dialog to create a new chat.
   void createChatDialog() {
     final chatNameController = TextEditingController();
 
@@ -83,6 +95,7 @@ class _ChatListPageState extends State<ChatListPage> {
             child: Column(
               children: [
                 TextField(
+                  // Input field for the chat name.
                   controller: chatNameController,
                   decoration:
                       const InputDecoration(hintText: "Enter chat name"),
@@ -92,7 +105,7 @@ class _ChatListPageState extends State<ChatListPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(), // Close the dialog.
               child: const Text("Cancel"),
             ),
             TextButton(
@@ -100,11 +113,9 @@ class _ChatListPageState extends State<ChatListPage> {
                 final chatName = chatNameController.text.trim();
 
                 if (chatName.isNotEmpty) {
-                  createNewChat(chatName);
-                  Navigator.of(context).pop();
-                } else {
-                  print("All fields are required.");
-                }
+                  createNewChat(chatName); // Create the chat.
+                  Navigator.of(context).pop(); // Close the dialog.
+                } else {}
               },
               child: const Text("Create"),
             ),
@@ -114,95 +125,97 @@ class _ChatListPageState extends State<ChatListPage> {
     );
   }
 
+  /// Creates a new chat with the given name.
   void createNewChat(String chatName) {
     ChatService.createNewChat(channel, chatName);
   }
 
   @override
   void dispose() {
-    _isMounted = false; // Mark as unmounted
-    print("Disposing ChatListPage...");
-    channel.sink.close(); // Close the WebSocket connection
-
+    _isMounted = false;
+    channel.sink.close(); // Close the WebSocket connection on dispose.
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final tokenProvider =
-        Provider.of<TokenProvider>(context); // Access the provider
+    final tokenProvider = Provider.of<TokenProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ongoing Chats"),
-        automaticallyImplyLeading:
-            false, // Ensures the back button is not added
+        automaticallyImplyLeading: false,
         actions: [
           PopupMenuButton<String>(
             onSelected: (String choice) {
               switch (choice) {
-                case 'contacts':
+                case 'contacts': // Navigate to contacts page.
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ContactsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const ContactsPage()),
                   );
                   break;
-                case 'signout':
+                case 'signout': // Sign out the user.
                   tokenProvider.deleteToken();
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                         builder: (context) => const RegisterPhoneNumber()),
                   );
                   break;
-                case 'profile': // New case for Profile
+                case 'profile': // Navigate to profile page.
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            const ProfilePage()), // Navigate to ProfilePage
+                        builder: (context) => const ProfilePage()),
                   );
                   break;
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
-                value: 'contacts',
+                value: 'contacts', // Contacts menu item.
                 child: Text('Contacts'),
               ),
               const PopupMenuItem<String>(
-                value: 'signout',
+                value: 'signout', // Sign out menu item.
                 child: Text('Sign Out'),
               ),
               const PopupMenuItem<String>(
-                value: 'profile', // Add the Profile menu item
+                value: 'profile', // Profile menu item.
                 child: Text('Profile'),
               ),
             ],
           ),
         ],
       ),
-      body: ongoingChats.isEmpty
+      body: ongoingChats.isEmpty // Display loading indicator or chat list.
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: ongoingChats.length,
               itemBuilder: (context, index) {
                 final chat = ongoingChats[index];
                 return Card(
+                  // Display each chat as a card.
                   child: ListTile(
-                    title: Text(chat['name'] ?? 'Unnamed Chat'),
+                    // Display chat information within ListTile.
+                    title: Text(chat['name'] ??
+                        'Unnamed Chat'), // Display chat name or "Unnamed Chat".
                     subtitle: Text(
+                      // Display users in chat.
                       chat['users']
                               ?.map((u) => u['first_name'] ?? 'Unknown')
                               .join(", ") ??
                           'No users',
                     ),
-                    onTap: () => navigateToChatDetails(chat['id'].toString()),
+                    onTap: () => navigateToChatDetails(chat['id']
+                        .toString()), // Navigate to chat details when tapped.
                   ),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: createChatDialog,
-        tooltip: "Create New Chat",
+        onPressed: createChatDialog, // Open create chat dialog.
+        tooltip: "Create New Chat", // Tooltip for the button.
         child: const Icon(Icons.add),
       ),
     );

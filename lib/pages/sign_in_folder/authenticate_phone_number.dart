@@ -93,7 +93,7 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
                       // If OTP is valid, navigate to Contact Screen
                       navigator.push(
                         MaterialPageRoute(
-                            builder: (context) => ContactSelectionScreen(
+                            builder: (context) => const ContactSelectionScreen(
                                   nextPage: ChatListPage(),
                                 )),
                       );
@@ -153,6 +153,7 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
         print("Access Token");
         print(accessToken);
         final tokenProvider =
+            // ignore: use_build_context_synchronously
             Provider.of<TokenProvider>(context, listen: false);
         tokenProvider.saveToken(
             accessToken, expirationTime, refreshToken, clientId, clientSecret);
@@ -179,6 +180,3 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
     }
   }
 }
-// 'http://hangin-app-env.eba-hwfj6jrc.us-east-1.elasticbeanstalk.com/friends?access_token=
-//Save access token on device. abd save refresh token (for later). send friends (contacts to the url)
-//

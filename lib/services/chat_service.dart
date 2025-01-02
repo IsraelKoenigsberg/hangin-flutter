@@ -163,6 +163,7 @@ class ChatService {
     }
   }
 
+  /// Handles a user creating a new chat. Refreshes UI when doing so.
   static void createNewChat(WebSocketChannel channel, String chatName) {
     print("Creaeting new chat");
     final createChatMessage = jsonEncode({
