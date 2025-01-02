@@ -106,7 +106,10 @@ class _ChatListPageState extends State<ChatListPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(), // Close the dialog.
-              child: const Text("Cancel"),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(color: Colors.blue),
+              ),
             ),
             TextButton(
               onPressed: () {
