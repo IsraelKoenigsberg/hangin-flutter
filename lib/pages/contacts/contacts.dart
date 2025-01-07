@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:whats_up/pages/chat_folder/chat_list_page.dart';
 import 'package:whats_up/pages/contacts/contact_detail_page.dart';
 import 'package:whats_up/pages/sign_in_folder/contact_selection_screen.dart';
-import 'package:whats_up/services/server_service.dart';
+import 'package:whats_up/services/profile_and_contacts_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 /// Page displaying the user's contacts and friends.
@@ -51,7 +51,7 @@ class ContactsPage extends StatelessWidget {
       body: FutureBuilder<Map<String, dynamic>>(
         // Fetch data asynchronously
         future: accessToken != null
-            ? ServerService().fetchContactsAndFriends(accessToken)
+            ? ProfileAndContactsService().fetchContactsAndFriends(accessToken)
             : null,
         builder: (context, snapshot) {
           // Display loading indicator while fetching data

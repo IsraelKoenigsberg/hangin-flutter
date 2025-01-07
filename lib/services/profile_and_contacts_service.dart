@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:whats_up/constants/app_variables.dart';
 
 /// A service class for interacting with the server.
-class ServerService {
+class ProfileAndContactsService {
   /// The base URL for the server.
   String baseUrl = AppVariables.baseUrl;
 

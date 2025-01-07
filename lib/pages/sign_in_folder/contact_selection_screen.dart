@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:provider/provider.dart';
-import 'package:whats_up/services/server_service.dart';
+import 'package:whats_up/services/profile_and_contacts_service.dart';
 import 'package:whats_up/services/token_provider.dart';
 
 /// Screen for selecting contacts from the user's device and uploading them to the server.
@@ -102,7 +102,7 @@ class _ContactSelectionScreenState extends State<ContactSelectionScreen> {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final accessToken = tokenProvider.token;
 
-    await ServerService()
+    await ProfileAndContactsService()
         .sendContactsToServer(selectedContactsData, accessToken);
   }
 
