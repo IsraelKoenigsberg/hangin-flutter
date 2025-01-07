@@ -77,7 +77,7 @@ class _ChatListPageState extends State<ChatListPage> {
     );
   }
 
-  /// Navigates to the chat details page for a given chat ID.
+  /// Subscribes to the chat details page for a given chat ID.
   void navigateToChatDetails(String chatId) {
     ChatService.subscribeToSpecificChat(channel, chatId);
   }

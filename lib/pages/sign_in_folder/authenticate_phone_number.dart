@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_up/constants/app_strings.dart';
 import 'package:whats_up/constants/app_variables.dart';
@@ -107,11 +106,6 @@ class _TwoFactorCode extends State<AuthenticatePhoneNumber> {
         ),
       ),
     );
-  }
-
-  Future<bool> requestContactsPermission() async {
-    final status = await Permission.contacts.request();
-    return status.isGranted;
   }
 
   // Function to send OTP for validation and handle response
